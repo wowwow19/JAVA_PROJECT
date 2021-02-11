@@ -8,6 +8,7 @@ public class Data {
 	private static ArrayList<Food> snackList = new ArrayList<Food>();
 	private static ArrayList<Food> beverageList = new ArrayList<Food>();
 	private static ArrayList<Food> teaList = new ArrayList<Food>();
+	private static ArrayList<Fee> feeList = new ArrayList<Fee>();
 	
 	{
 		// 식사 메뉴
