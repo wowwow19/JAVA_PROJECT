@@ -1,7 +1,8 @@
+package mini_project;
 
 public class Testso {
-	public static void main(String[] args) {
-		
-		
+	public void food() {
+		// TODO Auto-generated method stub
+
 	}
 }
