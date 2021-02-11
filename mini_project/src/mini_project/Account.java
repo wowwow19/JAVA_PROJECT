@@ -6,7 +6,7 @@ public class Account {
 	private String id;
 	private String pw;
 	private String phone;
-	private int remain_time;
+	private int remainTime;
 	private boolean status;
 	private boolean isMem;
 	
@@ -20,7 +20,7 @@ public class Account {
 		this.id = "guest";
 		this.pw = "0000";
 		this.phone = "0000";
-		this.remain_time = 0;
+		this.remainTime = 0;
 		this.status = false;
 		this.isMem = false;
 	}
@@ -31,7 +31,7 @@ public class Account {
 		this.id = id;
 		this.pw = pw;
 		this.phone = phone;
-		this.remain_time = 0;
+		this.remainTime = 0;
 		this.status = false;
 		this.isMem = true;
 	}
@@ -69,11 +69,11 @@ public class Account {
 	}
 
 	public int getRemain_time() {
-		return remain_time;
+		return remainTime;
 	}
 
-	public void setRemain_time(int remain_time) {
-		this.remain_time = remain_time;
+	public void setRemain_time(int remainTime) {
+		this.remainTime = remainTime;
 	}
 
 	public boolean isStatus() {
@@ -95,10 +95,10 @@ public class Account {
 	@Override
 	public String toString() {
 		if (isMem) {
-			return "계정정보 [회원번호=" + num + ", 아이디=" + id + ", 전화번호=" + phone + ", 남은시간=" + remain_time + ", 상태="
+			return "계정정보 [회원번호=" + num + ", 아이디=" + id + ", 전화번호=" + phone + ", 남은시간=" + remainTime + ", 상태="
 					+ status + ", 회원/비회원=회원]";
 		} else {
-			return "계정정보 [회원번호=" + num + ", 아이디=" + id + ", 전화번호=" + phone + ", 남은시간=" + remain_time + ", 상태="
+			return "계정정보 [회원번호=" + num + ", 아이디=" + id + ", 전화번호=" + phone + ", 남은시간=" + remainTime + ", 상태="
 					+ status + ", 회원/비회원=비회원]";
 		}
 	}
