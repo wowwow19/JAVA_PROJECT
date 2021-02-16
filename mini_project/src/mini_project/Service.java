@@ -188,13 +188,13 @@ public class Service {
 				
 				switch(input) {
 				case 1:	// 요금선택
-						// id가 "guest"일 때
+						// isMem이 false(비회원)일 때
 							// 1. 비회원 요금목록(feeListNoMem) 출력
 							// 2. Fee객체의 itemNum으로 요금 선택
 							// 3. 선택한 요금 결제여부 묻기
 							// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
 							// 5. 이용상태관리(ControlStat())로 넘어가기
-						// 회원일 때
+						// isMem이 true(회원)일 때
 							// 1. 회원 요금목록(feeListMem) 출력
 							// 2. Fee객체의 itemNum으로 요금 선택
 							// 3. 선택한 요금 결제여부 묻기
