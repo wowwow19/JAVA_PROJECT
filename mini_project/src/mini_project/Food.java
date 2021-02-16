@@ -1,6 +1,11 @@
 package mini_project;
 
 public class Food extends Merchandise {
+	/**
+	 * 직렬화시 포함된 필드
+	 * kind, stock
+	 */
+	private static final long serialVersionUID = -6863341935051929057L;
 	private String kind;
 	private int stock;
 	
@@ -9,14 +14,14 @@ public class Food extends Merchandise {
 		this.stock = 0;
 	}
 	
-	public Food(String kind, String name, int price) {
-		super(name, price);
+	public Food(String kind, int itemNum, String name, int price) {
+		super(name, itemNum, price);
 		this.kind = kind;
 		this.stock = 2;
 	}
 	
-	public Food(String kind, String name, int price, int stock) {
-		super(name, price);
+	public Food(String kind, int itemNum, String name, int price, int stock) {
+		super(name, itemNum, price);
 		this.kind = kind;
 		this.stock = stock;
 	}

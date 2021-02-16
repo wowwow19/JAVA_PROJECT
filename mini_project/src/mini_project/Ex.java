@@ -9,6 +9,8 @@ public class Ex {
 		boolean run = true;
 		
 		while (run) {
+			printLogo();
+			printInitialMenu();
 			int input = nextInt();
 			
 			switch (input) {
@@ -16,19 +18,13 @@ public class Ex {
 				s.register();
 				break;
 			case 2:
+				printLoginMenu();
 				s.login();
 				break;
 			case 3:
-				s.pay();
-				break;
-			case 4:
-				s.purchase();
-				break;
-			case 5:
-				s.controlStat();
-				break;
+				return;
 			default:
-				return;	// 메인 메서드 종료					
+				System.out.println("다시 입력하세요.");
 			}
 		}
 	}

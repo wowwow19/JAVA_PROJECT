@@ -1,25 +1,32 @@
 package mini_project;
 
-public class Account {
-	private static int memNum = 0;
-	private int num;
-	private String id;
-	private String pw;
-	private String phone;
-	private int remainTime;
-	private boolean status;
-	private boolean isMem;
+import java.io.Serializable;
+
+public class Account implements Serializable {
+	/**
+	 * 직렬화시 포함된 필드
+	 * 	memNum(static), num, id, pw, phone, remainTime, status, isMem
+	 */
+	private static final long serialVersionUID = -236989942385663711L;
+	private static int memNum = 0;	// 가입횟수(회원번호 발급에 참조, 자동증가)
+	private int num;				// 회원번호(memNum에 의해 발급)
+	private String id;				// 아이디
+	private String pw;				// 비밀번호
+	private String phone;			// 전화번호
+	private int remainTime;			// 남은시간
+	private boolean status;			// 이용상태
+	private boolean isMem;			// 회원/비회원 여부
 	
 	{
-		memNum++;
+		memNum++;					// 생성자 호출(계정추가)마다 가입횟수 증가
 	}
 	
 	// 비회원 가입시 생성자
-	public Account() {
+	public Account(String phone) {
 		this.num = memNum;
 		this.id = "guest";
 		this.pw = "0000";
-		this.phone = "0000";
+		this.phone = phone;
 		this.remainTime = 0;
 		this.status = false;
 		this.isMem = false;
@@ -102,6 +109,4 @@ public class Account {
 					+ status + ", 회원/비회원=비회원]";
 		}
 	}
-
-			
 }
