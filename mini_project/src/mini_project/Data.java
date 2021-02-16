@@ -149,13 +149,13 @@ public class Data {
 		save("feeListNoMem.ser", feeListNoMem);
 		
 		// 회원요금목록
-		feeListNoMem.add(new Fee("1시간", 106, 900, 1));
-		feeListNoMem.add(new Fee("2시간", 107, 1800, 2));
-		feeListNoMem.add(new Fee("3시간", 108, 3000, 3));
-		feeListNoMem.add(new Fee("4시간", 109, 3500, 4));
-		feeListNoMem.add(new Fee("5시간", 110, 4500, 5));
-		feeListNoMem.add(new Fee("10시간", 111, 8000, 10));
-		feeListNoMem.add(new Fee("20시간", 112, 16000, 20));
+		feeListMem.add(new Fee("1시간", 106, 900, 1));
+		feeListMem.add(new Fee("2시간", 107, 1800, 2));
+		feeListMem.add(new Fee("3시간", 108, 3000, 3));
+		feeListMem.add(new Fee("4시간", 109, 3500, 4));
+		feeListMem.add(new Fee("5시간", 110, 4500, 5));
+		feeListMem.add(new Fee("10시간", 111, 8000, 10));
+		feeListMem.add(new Fee("20시간", 112, 16000, 20));
 		save("feeListMem.ser", feeListMem);
 	}
 }
