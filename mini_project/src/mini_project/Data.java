@@ -5,7 +5,7 @@ import static mini_project.Utils.*;
 
 public class Data {
 	/**
-	 * 최초 한 번만 실행
+	 * 최초 한 번만 실행(데이터 초기화 목적 이외 실행 금지)
 	 */
 	public static void main(String[] args) {
 		ArrayList<Account> members = new ArrayList<Account>();
@@ -20,10 +20,10 @@ public class Data {
 		// 기본 계정
 		members.add(new Account("admin", "admin", "0000"));		// 관리자계정
 		members.add(new Account("tmp_user", "1234", "0000")); 	// 임시계정
-		members.add(new Account("bobo", "1230", "0000"));		// 관리자 1
-		members.add(new Account("cks", "741", "0000"));			// 관리자 2
-		members.add(new Account("soyo123", "0147", "0000"));	// 관리자 3
-		members.add(new Account("minu", "0908", "0000"));	 	// 관리자 4
+		members.add(new Account("bobo", "1230", "0000"));		// 일반회원 1
+		members.add(new Account("cks", "741", "0000"));			// 일반회원 2
+		members.add(new Account("soyo123", "0147", "0000"));	// 일반회원 3
+		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
 		save("members.ser", members);
 		
 		// 식사 메뉴 
