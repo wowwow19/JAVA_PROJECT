@@ -1,8 +1,8 @@
-package mini_project;
+package mini_project.vo;
 
 import java.io.Serializable;
 
-public class Merchandise implements Serializable {
+public abstract class Merchandise implements Serializable {
 	/**
 	 *	직렬화시 포함된 필드
 	 *	name, price, itemNum

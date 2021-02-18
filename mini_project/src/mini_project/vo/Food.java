@@ -1,4 +1,4 @@
-package mini_project;
+package mini_project.vo;
 
 public class Food extends Merchandise {
 	/**
@@ -6,8 +6,8 @@ public class Food extends Merchandise {
 	 * kind, stock
 	 */
 	private static final long serialVersionUID = -6863341935051929057L;
-	private String kind;
-	private int stock;
+	private String kind;	// 음식종류
+	private int stock;		// 재고수
 	
 	public Food() {
 		super();

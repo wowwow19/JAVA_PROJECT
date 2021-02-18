@@ -1,6 +1,8 @@
 package mini_project;
 
-import static mini_project.Utils.*;
+import static mini_project.utils.CommonUtils.*;
+
+import mini_project.service.Service;
 
 public class Ex {
 	public static void main(String[] args) {
