@@ -2,15 +2,15 @@ package mini_project.vo;
 
 import java.io.Serializable;
 
+/**
+ *	직렬화시 포함된 필드
+ *	name, price, itemNum
+ */
 public abstract class Merchandise implements Serializable {
-	/**
-	 *	직렬화시 포함된 필드
-	 *	name, price, itemNum
-	 */
 	private static final long serialVersionUID = -4280881976853207054L;
-	private String name;
-	private int price;
-	private int itemNum;
+	private String name;	// 상품명
+	private int price;		// 가격
+	private int itemNum;	// 상품번호
 	
 	public Merchandise() {
 		this(null, 0, 0);

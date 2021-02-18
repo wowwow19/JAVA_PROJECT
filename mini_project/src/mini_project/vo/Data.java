@@ -22,7 +22,7 @@ public class Data {
 		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
 		save("memberList.ser", members);
 		
-		// 식사 메뉴 
+		// 식사 메뉴(상품번호 1~24)
 		menuList.add(new Food("식사", 1, "기본라면", 3500));
 		menuList.add(new Food("식사", 2, "계란라면", 3800));
 		menuList.add(new Food("식사", 3, "치즈라면", 4000));
@@ -48,7 +48,7 @@ public class Data {
 		menuList.add(new Food("식사", 23, "치즈추가", 500));
 		menuList.add(new Food("식사", 24, "공기밥", 1000));
 		
-		// 사이드 메뉴
+		// 사이드 메뉴(상품번호 25~36)
 		menuList.add(new Food("사이드", 25, "감자튀김", 3000));
 		menuList.add(new Food("사이드", 26, "새우튀김(3개)", 3500));
 		menuList.add(new Food("사이드", 27, "고구마맛탕", 3000));
@@ -62,7 +62,7 @@ public class Data {
 		menuList.add(new Food("사이드", 35, "호떡(2개)", 2000));
 		menuList.add(new Food("사이드", 36, "붕어빵(3개)", 2000));
 		
-		// 과자 메뉴
+		// 과자 메뉴(상품번호 37~50)
 		menuList.add(new Food("과자", 37, "포카칩", 1500));
 		menuList.add(new Food("과자", 38, "나초", 1500));
 		menuList.add(new Food("과자", 39, "홈런볼", 1500));
@@ -78,7 +78,7 @@ public class Data {
 		menuList.add(new Food("과자", 49, "아몬드빼빼로", 1500));
 		menuList.add(new Food("과자", 50, "누드빼빼로", 1500));
 		
-		// 음료수 메뉴
+		// 음료수 메뉴(상품번호 51~67)
 		menuList.add(new Food("음료", 51, "마운틴듀", 1500));
 		menuList.add(new Food("음료", 52, "밀키스", 1500));
 		menuList.add(new Food("음료", 53, "사이다", 1500));
@@ -97,7 +97,7 @@ public class Data {
 		menuList.add(new Food("음료", 66, "블루레몬에이드", 2000));
 		menuList.add(new Food("음료", 67, "망고에이드", 2000));
 		
-		// 커피/차 메뉴
+		// 커피/차 메뉴(상품번호 68~97)
 		menuList.add(new Food("커피/차", 68, "레몬유자차", 2000));
 		menuList.add(new Food("커피/차", 69, "자몽차", 2000));
 		menuList.add(new Food("커피/차", 70, "캐모마일", 2000));
@@ -130,7 +130,7 @@ public class Data {
 		menuList.add(new Food("커피/차", 97, "아이스녹차라떼", 3000));
 		save("menuList.ser", menuList);
 		
-		// 비회원요금목록
+		// 비회원요금목록(상품번호 98~105)
 		feeList.add(new Fee("1시간", 98, 1200, 1, false));
 		feeList.add(new Fee("2시간", 99, 2400, 2, false));
 		feeList.add(new Fee("3시간", 101, 3500, 3, false));
@@ -139,7 +139,7 @@ public class Data {
 		feeList.add(new Fee("10시간", 104, 10000, 10, false));
 		feeList.add(new Fee("20시간", 105, 20000, 20, false));
 		
-		// 회원요금목록
+		// 회원요금목록(상품번호 106~112)
 		feeList.add(new Fee("1시간", 106, 900, 1, true));
 		feeList.add(new Fee("2시간", 107, 1800, 2, true));
 		feeList.add(new Fee("3시간", 108, 3000, 3, true));

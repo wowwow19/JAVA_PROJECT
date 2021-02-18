@@ -10,6 +10,7 @@ import mini_project.vo.*;
 @SuppressWarnings("unchecked")
 public class Service {
 	private int sales = 0;											// 총매출
+	private Account loginUser = null;								// 현재 로그인된 계정의 정보를 담을 객체
 	private ArrayList<Account> members = new ArrayList<Account>();	// 회원목록
 	private ArrayList<Food> menuList = new ArrayList<Food>();		// 메뉴목록
 	private ArrayList<Fee> feeList = new ArrayList<Fee>();			// 요금목록
@@ -39,11 +40,11 @@ public class Service {
 	public void register() {
 		boolean run = true;
 		Account tmpUser = new Account();
-		RegisterUtils ru = new RegisterUtils();
+		Utils u = new Utils();
 		
 		while(run) {
-			tmpUser = ru.insertInfo(tmpUser, members);
-			ru.printInputInfo(tmpUser);
+			tmpUser = u.insertInfo(tmpUser, members);
+			u.printInputInfo(tmpUser);
 			
 			System.out.print("입력한 정보가 맞습니까? 1. 예 2. 아니오 3. 종료 > ");
 			int choice = nextInt();
@@ -62,6 +63,64 @@ public class Service {
 	 * @author 보경
 	 */
 	public void login() {
+		String id = "";
+		String pw = "";
+		String phone = "";
+		int idx = 0;
+		int input = 0;
+		
+		System.out.println("메뉴선택");
+		input = nextInt();
+
+		switch (input) {
+		case 1: // 회원 로그인
+			System.out.print("아이디 > ");
+			id = nextLine();
+
+			Account account = findByInfo(id);
+			System.out.println(account);
+			if(account == null) {
+				System.out.println("아이디 확인 후 다시 입력");
+			}
+			else {
+				System.out.print("비밀번호> ");
+				pw = nextLine();
+			}
+			if(account == null) {
+				System.out.println("비밀번호 확인 후 다시 입력");
+			}
+			else {
+				System.out.println(id + "님 환영합니다.");
+				pay();
+			}
+			break;
+
+		case 2: // 비회원 로그인
+			System.out.println("임시회원번호: " + (members.size() + 1));
+			System.out.print("전화번호 입력 > ");
+			phone = nextLine();
+			loginUser = new Account(phone); // 비회원 생성자 호출
+			pay();
+			break;
+
+		case 3: // 이전
+			printLogo();
+			printInitialMenu();
+			break;
+
+		default:
+			System.out.println("1~3값으로 다시 입력");
+		}
+	}
+		
+	Account findByInfo(String id) {
+		Account account = null;
+		for (int i = 0; i < members.size(); i++) {
+			if (members.get(i).getId().equals(id)) { // 사용자입력값 == 회원목록의 아이디
+				account = members.get(i); // 주소값 복사
+			}
+		}
+		return account;
 	}
 	
 	/**
@@ -77,7 +136,7 @@ public class Service {
 				
 				switch(input) {
 				case 1:	// 요금선택
-						// isMem이 false(비회원)일 때
+						// isMem이 false(비회원)일 때\
 							// 1. 비회원 요금목록(feeListNoMem) 출력
 							// 2. Fee객체의 itemNum으로 요금 선택
 							// 3. 선택한 요금 결제여부 묻기

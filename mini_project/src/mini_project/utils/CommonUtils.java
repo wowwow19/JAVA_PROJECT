@@ -87,7 +87,7 @@ public class CommonUtils {
 	 * @param list
 	 * 			id가 있는지 검색할 Account 배열
 	 * @return
-	 * 			찾는 id값을 가진 객체의 인덱스
+	 * 			찾는 id값을 가진 객체의 인덱스(존재하면 해당 인덱스 값, 존재하지 않으면 -1를 반환)
 	 */
 	public static int findById(String id, ArrayList<Account> list) {
 		for(int i = 0; i < list.size(); i++) {
