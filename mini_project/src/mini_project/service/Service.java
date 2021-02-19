@@ -69,6 +69,7 @@ public class Service {
 		int idx = 0;
 		int input = 0;
 		
+		System.out.println(members.get(0).getNum());
 		System.out.println("메뉴선택");
 		input = nextInt();
 
@@ -77,29 +78,29 @@ public class Service {
 			System.out.print("아이디 > ");
 			id = nextLine();
 
-			Account account = findByInfo(id);
-			System.out.println(account);
-			if(account == null) {
+			idx = findById(id, members);
+			System.out.println(members.get(idx));
+			if(idx == -1) {
 				System.out.println("아이디 확인 후 다시 입력");
 			}
 			else {
 				System.out.print("비밀번호> ");
 				pw = nextLine();
 			}
-			if(account == null) {
+			if(idx == -1) {
 				System.out.println("비밀번호 확인 후 다시 입력");
 			}
 			else {
-				System.out.println(id + "님 환영합니다.");
+				System.out.println(members.get(idx).getId() + "님 환영합니다.");
 				pay();
 			}
 			break;
 
 		case 2: // 비회원 로그인
-			System.out.println("임시회원번호: " + (members.size() + 1));
 			System.out.print("전화번호 입력 > ");
 			phone = nextLine();
 			loginUser = new Account(phone); // 비회원 생성자 호출
+			System.out.println("임시회원번호: " + loginUser.getNum());
 			pay();
 			break;
 
@@ -221,6 +222,36 @@ public class Service {
 			} catch(NumberFormatException e) {
 				System.out.println("숫자로 입력하세요.");
 			}
+		}
+	}
+	/**
+	 * 관리자계정(admin)으로 로그인했을 경우 각 관리자 기능을 호출하는 메뉴를 출력
+	 * @author 민우
+	 */
+	public void adminMenu() {
+		boolean run = true;
+		
+		try {
+			while(run) {
+				printAdminMenu();
+				int input = nextInt();
+				
+				switch(input) {
+				case 1:	// 회원관리
+					manageMember();
+					break;
+				case 2:	// 재고관리
+					manageStock();
+					break;
+				case 3:	// 매출관리
+					manageSales();
+					break;
+				default:
+					System.out.println("다시 입력하세요.");
+				}
+			}
+		} catch(NumberFormatException e) {
+			System.out.println("숫자로 입력하세요.");
 		}
 	}
 	

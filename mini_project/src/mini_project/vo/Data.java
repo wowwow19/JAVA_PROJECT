@@ -21,6 +21,7 @@ public class Data {
 		members.add(new Account("soyo123", "0147", "0000"));	// 일반회원 3
 		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
 		save("memberList.ser", members);
+		save("memNum.ser", 6);
 		
 		// 식사 메뉴(상품번호 1~24)
 		menuList.add(new Food("식사", 1, "기본라면", 3500));

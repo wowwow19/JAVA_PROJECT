@@ -2,6 +2,7 @@ package mini_project.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +49,16 @@ public class CommonUtils {
 		System.out.println("=====================================================================================================");
 		System.out.print("메뉴를 선택하세요. > ");
 	}
+	
+	public static void printAdminMenu() {
+		System.out.println("=====================================================================================================");
+		System.out.println("                ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐                  ");
+		System.out.println("                │    1. 회원가입    │  │     2. 로그인     │  │      3. 종 료     │                  ");
+		System.out.println("                └───────────────────┘  └───────────────────┘  └───────────────────┘                  ");
+		System.out.println("=====================================================================================================");
+		System.out.print("메뉴를 선택하세요. > ");
+	}
+
 	/**
 	 * 파일을 읽어올 ObjectInputStream을 생성
 	 * @param fileName
@@ -80,6 +91,17 @@ public class CommonUtils {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void save(String fileName, int num) {
+		try {
+			DataOutputStream fos = new DataOutputStream(new FileOutputStream(fileName));
+			fos.writeInt(num);
+			fos.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * 회원 목록에서 특정 id값을 가진 객체의 인덱스 값을 반환
 	 * @param id
@@ -95,4 +117,5 @@ public class CommonUtils {
 		}
 		return -1;
 	}
+	
 }

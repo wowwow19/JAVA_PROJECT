@@ -2,13 +2,8 @@ package mini_project.utils;
 
 import static mini_project.utils.CommonUtils.*;
 import java.util.ArrayList;
-
 import mini_project.vo.Account;
-/**
- * 
- * @author 민우
- *
- */
+
 public class Utils {
 	/**
 	 * 기본생성자
@@ -18,6 +13,7 @@ public class Utils {
 	// 회원가입
 	/**
 	 * 패스워드 문자열을 입력받아 첫글자와 마지막 글자를 제외하고 *(별표)로 출력
+	 * @author 민우
 	 * @param pw
 	 * 			출력할 패스워드 문자열
 	 */
@@ -33,6 +29,7 @@ public class Utils {
 	
 	/**
 	 * 회원가입 정보 입력 후 입력된 정보 확인하기 위해 출력
+	 * @author 민우
 	 * @param tmpUser
 	 * 				정보가 입력된 임시 Account 객체
 	 */
@@ -47,6 +44,7 @@ public class Utils {
 	
 	/**
 	 * 회원가입을 위한 아이디, 패스워드, 전화번호 입력
+	 * @author 민우
 	 * @param tmpUser
 	 * 				가입정보가 담길 임시 Account 객체
 	 * @param list
@@ -80,6 +78,7 @@ public class Utils {
 	}
 	/**
 	 * 회원가입 정보에 대한 유효성 검증을 실시하여 boolean값을 반환
+	 * @author 민우
 	 * @param id
 	 * 			이미 존재하는 아이디인지 검증할 아이디 문자열
 	 * @param pw
@@ -98,16 +97,14 @@ public class Utils {
 		errMsg.add(checkPwLength(pw));
 		errMsg.add(checkPwMatch(pw, pwCheck));
 		
-		if(errMsg.get(0) != null) {
-			printErr(errMsg);
-			return false;
-		}
+		if(!printErr(errMsg)) return false;
 		
 		return true;
 	}
 	
 	/**
 	 * 
+	 * @author 민우
 	 * @param id
 	 * @param list
 	 * @return
@@ -123,6 +120,7 @@ public class Utils {
 	
 	/**
 	 * 
+	 * @author 민우
 	 * @param pw
 	 * @return
 	 */
@@ -135,6 +133,7 @@ public class Utils {
 	
 	/**
 	 * 
+	 * @author 민우
 	 * @param pw
 	 * @param pwCheck
 	 * @return
@@ -148,16 +147,25 @@ public class Utils {
 	
 	/**
 	 * 회원가입 정보 입력 중 발생한 오류의 갯수와 내용을 출력
+	 * @author 민우
 	 * @param list
 	 * 			오류 메시지 문자열을 담은 ArrayList
 	 */
-	public void printErr(ArrayList<String> list) {
-		int i = 0;
+	public boolean printErr(ArrayList<String> list) {
+		int num = 0;
 		System.out.println("=====================================================================================================");
-		while(list.get(i) != null) {
-			System.out.println((i+1) + "." + list.get(i++));
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i) != null) {
+				System.out.println(list.get(i));
+				num++;
+			}
 		}
-		System.err.println("[" + i + "]" + "개의 에러 : 회원가입 실패");
+		if(num != 0) {
+			System.err.println("[" + num + "]" + "개의 에러 : 회원가입 실패");	
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	// 로그인
@@ -205,5 +213,4 @@ public class Utils {
 		System.out.println("=====================================================================================================");
 		System.out.print("메뉴를 선택하세요. > ");
 	}
-
 }

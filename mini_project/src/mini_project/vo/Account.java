@@ -1,5 +1,9 @@
 package mini_project.vo;
 
+import static mini_project.utils.CommonUtils.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
 public class Account implements Serializable {
@@ -8,7 +12,7 @@ public class Account implements Serializable {
 	 * 	memNum(static), num, id, pw, phone, remainTime, status, member
 	 */
 	private static final long serialVersionUID = -236989942385663711L;
-	private static int memNum = 0;	// 가입횟수(회원번호 발급에 참조, 자동증가)
+	private static int memNum;		// 가입횟수(회원번호 발급에 참조, 자동증가)
 	private int num;				// 회원번호(memNum에 의해 발급)
 	private String id;				// 아이디
 	private String pw;				// 비밀번호
@@ -18,8 +22,19 @@ public class Account implements Serializable {
 	private boolean status;			// 이용상태
 	private boolean member;			// 회원/비회원 여부
 	
+	static {
+		try {
+			DataInputStream dis = new DataInputStream(new FileInputStream("memNum.ser"));
+			memNum = dis.readInt();	
+			dis.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	{
-		memNum++;					// 생성자 호출(계정추가)마다 가입횟수 증가
+		memNum++;
+		save("memNum.ser", memNum);
 	}
 	
 	// 기본 생성자
@@ -102,12 +117,28 @@ public class Account implements Serializable {
 	public void setStatus(boolean status) {
 		this.status = status;
 	}
+	
+	public static int getMemNum() {
+		return memNum;
+	}
 
-	public boolean member() {
+	public static void setMemNum(int memNum) {
+		Account.memNum = memNum;
+	}
+
+	public int getRemainTime() {
+		return remainTime;
+	}
+
+	public void setRemainTime(int remainTime) {
+		this.remainTime = remainTime;
+	}
+
+	public boolean isMember() {
 		return member;
 	}
 
-	public void setMem(boolean member) {
+	public void setMember(boolean member) {
 		this.member = member;
 	}
 
