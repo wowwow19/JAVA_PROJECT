@@ -1,4 +1,4 @@
-package mini_project.vo;
+package miniProject.vo;
 
 /**
  *	직렬화시 포함된 필드

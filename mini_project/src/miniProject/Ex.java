@@ -1,8 +1,8 @@
-package mini_project;
+package miniProject;
 
-import static mini_project.utils.CommonUtils.*;
+import static miniProject.utils.CommonUtils.*;
 
-import mini_project.service.Service;
+import miniProject.service.Service;
 
 public class Ex {
 	public static void main(String[] args) {
@@ -24,6 +24,8 @@ public class Ex {
 					s.login();
 					break;
 				case 3:
+					s.end = (int)System.currentTimeMillis();
+					System.out.println(((s.end - s.start)/1000f) + "초");
 					return;
 				default:
 					System.out.println("다시 입력하세요.");

@@ -1,4 +1,4 @@
-package mini_project.vo;
+package miniProject.vo;
 
 public class Food extends Merchandise {
 	/**

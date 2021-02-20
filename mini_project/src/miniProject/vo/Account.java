@@ -1,6 +1,7 @@
-package mini_project.vo;
+package miniProject.vo;
 
-import static mini_project.utils.CommonUtils.*;
+import static miniProject.utils.CommonUtils.*;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,7 +39,10 @@ public class Account implements Serializable {
 	}
 	
 	// 기본 생성자
-	public Account() {}
+	public Account() {
+		this.num = memNum;
+		this.member = true;
+	}
 	
 	// 비회원 가입시 생성자
 	public Account(String phone) {
@@ -100,14 +104,6 @@ public class Account implements Serializable {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	public int getRemain_time() {
-		return remainTime;
-	}
-
-	public void setRemain_time(int remainTime) {
-		this.remainTime = remainTime;
 	}
 
 	public boolean isStatus() {

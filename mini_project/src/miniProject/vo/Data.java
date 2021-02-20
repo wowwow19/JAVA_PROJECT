@@ -1,6 +1,6 @@
-package mini_project.vo;
+package miniProject.vo;
 
-import static mini_project.utils.CommonUtils.*;
+import static miniProject.utils.CommonUtils.*;
 
 import java.util.ArrayList;
 

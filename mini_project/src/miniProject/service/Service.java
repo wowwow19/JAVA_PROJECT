@@ -1,19 +1,23 @@
-package mini_project.service;
+package miniProject.service;
+
+import static miniProject.utils.CommonUtils.*;
 
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
-import static mini_project.utils.CommonUtils.*;
-import mini_project.utils.*;
-import mini_project.vo.*;
+import miniProject.utils.*;
+import miniProject.vo.*;
 
 @SuppressWarnings("unchecked")
 public class Service {
-	private int sales = 0;											// 총매출
+	private int sales = 0;											// 매출
+	private int purchase = 0;										// 매입
 	private Account loginUser = null;								// 현재 로그인된 계정의 정보를 담을 객체
 	private ArrayList<Account> members = new ArrayList<Account>();	// 회원목록
 	private ArrayList<Food> menuList = new ArrayList<Food>();		// 메뉴목록
 	private ArrayList<Fee> feeList = new ArrayList<Fee>();			// 요금목록
+	public int start = 0;											// 로그인(사용시작)시의 시간
+	public int end = 0;												// 사용종료시의 시간
 	
 	{
 		try {
@@ -44,14 +48,14 @@ public class Service {
 		
 		while(run) {
 			tmpUser = u.insertInfo(tmpUser, members);
-			u.printInputInfo(tmpUser);
 			
+			printMemberInfo(tmpUser);
 			System.out.print("입력한 정보가 맞습니까? 1. 예 2. 아니오 3. 종료 > ");
 			int choice = nextInt();
 			
 			if(choice == 1) {
 				members.add(tmpUser);
-				save("memberList", members);
+				save("memberList.ser", members);
 				return;
 			} else if (choice == 3) {
 				return;
@@ -69,7 +73,6 @@ public class Service {
 		int idx = 0;
 		int input = 0;
 		
-		System.out.println(members.get(0).getNum());
 		System.out.println("메뉴선택");
 		input = nextInt();
 
@@ -91,8 +94,15 @@ public class Service {
 				System.out.println("비밀번호 확인 후 다시 입력");
 			}
 			else {
-				System.out.println(members.get(idx).getId() + "님 환영합니다.");
-				pay();
+				printWelcom(id);
+				loginUser = members.get(idx);
+				start = (int)System.currentTimeMillis();
+				if(idx == 0) {
+					adminMenu();
+				}
+				else {
+					pay();
+				}				
 			}
 			break;
 
@@ -101,6 +111,7 @@ public class Service {
 			phone = nextLine();
 			loginUser = new Account(phone); // 비회원 생성자 호출
 			System.out.println("임시회원번호: " + loginUser.getNum());
+			System.out.println(loginUser);
 			pay();
 			break;
 
@@ -108,7 +119,6 @@ public class Service {
 			printLogo();
 			printInitialMenu();
 			break;
-
 		default:
 			System.out.println("1~3값으로 다시 입력");
 		}
@@ -137,7 +147,7 @@ public class Service {
 				
 				switch(input) {
 				case 1:	// 요금선택
-						// isMem이 false(비회원)일 때\
+						// isMem이 false(비회원)일 때
 							// 1. 비회원 요금목록(feeListNoMem) 출력
 							// 2. Fee객체의 itemNum으로 요금 선택
 							// 3. 선택한 요금 결제여부 묻기
@@ -246,6 +256,8 @@ public class Service {
 				case 3:	// 매출관리
 					manageSales();
 					break;
+				case 4:	// 종료
+					return;
 				default:
 					System.out.println("다시 입력하세요.");
 				}
@@ -259,7 +271,30 @@ public class Service {
 	 * @author 민우
 	 */
 	public void manageMember() {
+		Utils u = new Utils();
+		boolean run = true;
 		
+		try {
+			while(run) {
+				u.printMngMemMenu();
+				int input = nextInt();
+				
+				switch(input) {
+				case 1: // 회원정보수정
+					u.updateMem(members);
+					break;
+				case 2: // 회원삭제
+					u.deleteMem(members);
+					break;
+				case 3: // 이전(관리자메뉴출력화면)
+					return;
+				default:
+					System.out.println("다시 입력하세요.");
+				}
+			}			
+		} catch(NumberFormatException e) {
+			System.out.println("숫자로 입력하세요.");
+		}
 	}
 	
 	/**
@@ -277,4 +312,20 @@ public class Service {
 		
 	}
 
+	public ArrayList<Account> getMembers() {
+		return members;
+	}
+
+	public void setMembers(ArrayList<Account> members) {
+		this.members = members;
+	}
+	
+	/**
+	 * 매출액(sales)과 매입액(purchase)의 차인 영업이익(total)을 반환하는 getter
+	 * @return
+	 * 		매출액(sales)과 매입액(purchase)의 차인 영업이익(total)
+	 */
+	public int getTotal() {
+		return sales - purchase;
+	}
 }
