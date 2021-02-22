@@ -7,17 +7,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
+/**
+ * 직렬화시 포함된 필드
+ * 	memNum(static), num, id, pw, phone, remainTime, status, member
+ */
 public class Account implements Serializable {
-	/**
-	 * 직렬화시 포함된 필드
-	 * 	memNum(static), num, id, pw, phone, remainTime, status, member
-	 */
 	private static final long serialVersionUID = -236989942385663711L;
 	private static int memNum;		// 가입횟수(회원번호 발급에 참조, 자동증가)
 	private int num;				// 회원번호(memNum에 의해 발급)
 	private String id;				// 아이디
 	private String pw;				// 비밀번호
-	private String tmpPw;			// 가입시 확인용 비밀번호
 	private String phone;			// 전화번호
 	private int remainTime;			// 남은시간
 	private boolean status;			// 이용상태
@@ -90,14 +89,6 @@ public class Account implements Serializable {
 		this.pw = pw;
 	}
 	
-	public String getTmpPw() {
-		return tmpPw;
-	}
-	
-	public void setTmpPw(String tmpPw) {
-		this.tmpPw = tmpPw;
-	}
-
 	public String getPhone() {
 		return phone;
 	}

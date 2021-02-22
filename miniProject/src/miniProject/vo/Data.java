@@ -2,6 +2,9 @@ package miniProject.vo;
 
 import static miniProject.utils.CommonUtils.*;
 
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Data {
@@ -12,16 +15,18 @@ public class Data {
 		ArrayList<Account> members = new ArrayList<Account>();
 		ArrayList<Food> menuList = new ArrayList<Food>();
 		ArrayList<Fee> feeList = new ArrayList<Fee>();
+		int sales = 0;
+		int purchase = 0;
 		
 		// 기본 계정
-		members.add(new Account("admin", "admin", "0000"));		// 관리자계정
-		members.add(new Account("tmp_user", "1234", "0000")); 	// 임시계정
-		members.add(new Account("bobo", "1230", "0000"));		// 일반회원 1
-		members.add(new Account("cks", "741", "0000"));			// 일반회원 2
-		members.add(new Account("soyo123", "0147", "0000"));	// 일반회원 3
-		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
-		save("memberList.ser", members);
-		save("memNum.ser", 6);
+//		members.add(new Account("admin", "admin", "0000"));		// 관리자계정
+//		members.add(new Account("tmp_user", "1234", "0000")); 	// 임시계정
+//		members.add(new Account("bobo", "1230", "0000"));		// 일반회원 1
+//		members.add(new Account("cks", "741", "0000"));			// 일반회원 2
+//		members.add(new Account("soyo123", "0147", "0000"));	// 일반회원 3
+//		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
+//		save("memberList.ser", members);
+//		save("memNum.ser", 6);
 		
 		// 식사 메뉴(상품번호 1~24)
 		menuList.add(new Food("식사", 1, "기본라면", 3500));
@@ -132,22 +137,25 @@ public class Data {
 		save("menuList.ser", menuList);
 		
 		// 비회원요금목록(상품번호 98~105)
-		feeList.add(new Fee("1시간", 98, 1200, 1, false));
-		feeList.add(new Fee("2시간", 99, 2400, 2, false));
-		feeList.add(new Fee("3시간", 101, 3500, 3, false));
-		feeList.add(new Fee("4시간", 102, 4500, 4, false));
-		feeList.add(new Fee("5시간", 103, 5500, 5, false));
-		feeList.add(new Fee("10시간", 104, 10000, 10, false));
-		feeList.add(new Fee("20시간", 105, 20000, 20, false));
+		feeList.add(new Fee("1시간", 98, 1200, 60, false));
+		feeList.add(new Fee("2시간", 99, 2400, 120, false));
+		feeList.add(new Fee("3시간", 101, 3500, 180, false));
+		feeList.add(new Fee("4시간", 102, 4500, 240, false));
+		feeList.add(new Fee("5시간", 103, 5500, 300, false));
+		feeList.add(new Fee("10시간", 104, 10000, 600, false));
+		feeList.add(new Fee("20시간", 105, 20000, 1200, false));
 		
 		// 회원요금목록(상품번호 106~112)
-		feeList.add(new Fee("1시간", 106, 900, 1, true));
-		feeList.add(new Fee("2시간", 107, 1800, 2, true));
-		feeList.add(new Fee("3시간", 108, 3000, 3, true));
-		feeList.add(new Fee("4시간", 109, 3500, 4, true));
-		feeList.add(new Fee("5시간", 110, 4500, 5, true));
-		feeList.add(new Fee("10시간", 111, 8000, 10, true));
-		feeList.add(new Fee("20시간", 112, 16000, 20, true));
+		feeList.add(new Fee("1시간", 106, 900, 60, true));
+		feeList.add(new Fee("2시간", 107, 1800, 120, true));
+		feeList.add(new Fee("3시간", 108, 3000, 180, true));
+		feeList.add(new Fee("4시간", 109, 3500, 240, true));
+		feeList.add(new Fee("5시간", 110, 4500, 300, true));
+		feeList.add(new Fee("10시간", 111, 8000, 600, true));
+		feeList.add(new Fee("20시간", 112, 16000, 1200, true));
 		save("feeList.ser", feeList);
+		
+		// 매출매입장부
+		save("transaction.ser", sales, purchase);
 	}
 }

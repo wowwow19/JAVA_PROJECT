@@ -1,13 +1,14 @@
 package miniProject.vo;
 
+/**
+ * 직렬화시 포함된 필드
+ * kind, stock
+ */
 public class Food extends Merchandise {
-	/**
-	 * 직렬화시 포함된 필드
-	 * kind, stock
-	 */
 	private static final long serialVersionUID = -6863341935051929057L;
-	private String kind;	// 음식종류
-	private int stock;		// 재고수
+	private String kind;		// 음식종류
+	private int purchasePrice;	// 발주시 구입가
+	private int stock;			// 재고수
 	
 	public Food() {
 		super();
@@ -17,15 +18,25 @@ public class Food extends Merchandise {
 	public Food(String kind, int itemNum, String name, int price) {
 		super(name, itemNum, price);
 		this.kind = kind;
+		this.purchasePrice = (int) (price * 0.6);
 		this.stock = 2;
 	}
 	
 	public Food(String kind, int itemNum, String name, int price, int stock) {
 		super(name, itemNum, price);
 		this.kind = kind;
+		this.purchasePrice = (int) (price * 0.6);
 		this.stock = stock;
 	}
 	
+	public int getPurchasePrice() {
+		return purchasePrice;
+	}
+
+	public void setPurchasePrice(int purchasePrice) {
+		this.purchasePrice = purchasePrice;
+	}
+
 	public String getKind() {
 		return kind;
 	}
@@ -40,7 +51,11 @@ public class Food extends Merchandise {
 	}
 
 	public void setStock(int stock) {
-		this.stock = stock;
+		if(this.stock > 0) {
+			this.stock = stock;
+		} else {
+			this.stock = 0;
+		}
 	}
 
 	@Override

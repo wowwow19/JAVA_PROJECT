@@ -4,21 +4,21 @@ import java.io.Serializable;
 
 /**
  *	직렬화시 포함된 필드
- *	name, price, itemNum
+ *	name, price, num
  */
 public abstract class Merchandise implements Serializable {
 	private static final long serialVersionUID = -4280881976853207054L;
 	private String name;	// 상품명
-	private int price;		// 가격
-	private int itemNum;	// 상품번호
+	private int num;		// 상품번호
+	private int price;		// 판매가격
 	
 	public Merchandise() {
 		this(null, 0, 0);
 	}
 	
-	public Merchandise(String name, int itemNum, int price) {
+	public Merchandise(String name, int num, int price) {
 		this.name = name;
-		this.itemNum = itemNum;
+		this.num = num;
 		this.price = price;
 	}
 
@@ -39,11 +39,11 @@ public abstract class Merchandise implements Serializable {
 	}
 
 	public int getItemNum() {
-		return itemNum;
+		return num;
 	}
 
-	public void setItemNum(int itemNum) {
-		this.itemNum = itemNum;
+	public void setItemNum(int num) {
+		this.num = num;
 	}	
 	
 }
