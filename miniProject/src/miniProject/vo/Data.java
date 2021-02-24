@@ -136,23 +136,23 @@ public class Data {
 		menuList.add(new Food("커피/차", 97, "아이스녹차라떼", 3000));
 		save("menuList.ser", menuList);
 		
-		// 비회원요금목록(상품번호 98~105)
-		feeList.add(new Fee("1시간", 98, 1200, 60, false));
-		feeList.add(new Fee("2시간", 99, 2400, 120, false));
-		feeList.add(new Fee("3시간", 101, 3500, 180, false));
-		feeList.add(new Fee("4시간", 102, 4500, 240, false));
-		feeList.add(new Fee("5시간", 103, 5500, 300, false));
-		feeList.add(new Fee("10시간", 104, 10000, 600, false));
-		feeList.add(new Fee("20시간", 105, 20000, 1200, false));
+		// 비회원요금목록
+		feeList.add(new Fee("1시간", 1, 1200, 60, false));
+		feeList.add(new Fee("2시간", 2, 2400, 120, false));
+		feeList.add(new Fee("3시간", 3, 3500, 180, false));
+		feeList.add(new Fee("4시간", 4, 4500, 240, false));
+		feeList.add(new Fee("5시간", 5, 5500, 300, false));
+		feeList.add(new Fee("10시간", 6, 10000, 600, false));
+		feeList.add(new Fee("20시간", 7, 20000, 1200, false));
 		
-		// 회원요금목록(상품번호 106~112)
-		feeList.add(new Fee("1시간", 106, 900, 60, true));
-		feeList.add(new Fee("2시간", 107, 1800, 120, true));
-		feeList.add(new Fee("3시간", 108, 3000, 180, true));
-		feeList.add(new Fee("4시간", 109, 3500, 240, true));
-		feeList.add(new Fee("5시간", 110, 4500, 300, true));
-		feeList.add(new Fee("10시간", 111, 8000, 600, true));
-		feeList.add(new Fee("20시간", 112, 16000, 1200, true));
+		// 회원요금목록
+		feeList.add(new Fee("1시간", 1, 900, 60, true));
+		feeList.add(new Fee("2시간", 2, 1800, 120, true));
+		feeList.add(new Fee("3시간", 3, 3000, 180, true));
+		feeList.add(new Fee("4시간", 4, 3500, 240, true));
+		feeList.add(new Fee("5시간", 5, 4500, 300, true));
+		feeList.add(new Fee("10시간", 6, 8000, 600, true));
+		feeList.add(new Fee("20시간", 7, 16000, 1200, true));
 		save("feeList.ser", feeList);
 		
 		// 매출매입장부

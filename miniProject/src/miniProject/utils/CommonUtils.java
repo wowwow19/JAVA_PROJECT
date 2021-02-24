@@ -51,16 +51,7 @@ public class CommonUtils {
 		System.out.println("=====================================================================================================");
 		System.out.print("메뉴를 선택하세요. > ");
 	}
-	
-	public static void printAdminMenu() {
-		System.out.println("===================================== 홈 > 로그인 > 관리자메뉴 ======================================");
-		System.out.println("    ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   ");
-		System.out.println("    │   1. 회원관리    │  │   2. 재고관리    │  │   3. 매출관리    │  │   4. 로그아웃    │   ");
-		System.out.println("    └─────────┘  └─────────┘  └─────────┘  └─────────┘   ");
-		System.out.println("=====================================================================================================");
-		System.out.print("메뉴를 선택하세요. > ");
-	}
-	
+		
 	public static void printMemberMenu() {
 		System.out.println("===================================== 홈 > 로그인 > 회원메뉴 ========================================");
 		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
@@ -149,37 +140,7 @@ public class CommonUtils {
 		}
 		return -1;
 	}
-	
-	/**
-	 * 회원 목록에서 특정 pw값을 가진 객체의 인덱스 값을 반환
-	 * @param pw
-	 * 			배열의 객체에서 찾을 pw값
-	 * @param list
-	 * 			pw가 있는지 검색할 Account배열
-	 * @return
-	 * 			찾는 pw값을 가진 객체의 인덱스(존재하면 해당 인덱스 값, 존재하지 않으면 -1를 반환)
-	 */
-	public static boolean findByPw(int idx, String pw, ArrayList<Account> list) {
-		if(pw.equals(list.get(idx).getPw())) return true;
-		return false;
-	}
-	
-	/**
-	 * 회원 목록에서 특정 num값을 가진 객체의 인덱스 값을 반환
-	 * @param num
-	 * 			배열의 객체에서 찾을 num값
-	 * @param list
-	 * 			id가 있는지 검색할 Account 배열
-	 * @return
-	 * 			찾는 id값을 가진 객체의 인덱스(존재하면 해당 인덱스 값, 존재하지 않으면 -1를 반환)
-	 */
-	public static int findByNum(int num, ArrayList<Account> list) {
-		for(int i = 0; i < list.size(); i++) {
-			if(num == list.get(i).getNum()) return i;
-		}
-		return -1;
-	}	
-	
+			
 	/**
 	 * 글자 하나당 2byte로 계산할지 1byte로 계산할지를 알려주는 메서드, 파라미터가 한글일 경우 2byte를 그렇지 않을 경우는
 	 * 1byte로 반환한다.
@@ -502,34 +463,46 @@ public class CommonUtils {
 	 * @param num
 	 * 			입력받는 정수
 	 */
-	public static void printNumPerThou(int num) {
-		String str = "";
-		
-		if(num < 0) {
-			str += "-";
-			num = -num;
-		}
-		
-		int rest = num % 1000;
-		float tryNum = Integer.toString(num).length() / 3f;
-		System.out.println(tryNum);
-		
-		if(tryNum > 0) {
-			for(int i = (int)tryNum; i > 0; i--) {
-				int tmp = (int) (Math.pow(1000, i));
-				
-				if(tmp != 0) {
-					str += num / (int) (Math.pow(1000, i)) + ",";					
-				}
-				num %= (int) (Math.pow(1000, i));
-			}			
-		}
-		
-		str += Integer.toString(rest);
-		System.out.print(str);
+//	public static void printNumPerThou(long num) {
+//		String str = "";
+//		
+//		if(num < 0) {
+//			str += "-";
+//			num = -num;
+//		}
+//		
+//		long rest = num % 1000;
+//		long tryNum = (Long.toString(num).length()-1) / 3;
+//		
+//		
+//		if(tryNum > 0) {
+//			for(long i = tryNum; i > 0; i--) {
+//				int tmp = (int) (Math.pow(1000, i));
+//				
+//				if(tmp != 0) {
+//					str += num / tmp + ",";					
+//				}
+//				num %= (int) (Math.pow(1000, i));
+//			}			
+//		}
+//		
+//		if(rest == 0) {
+//			for(int i = 0; i < tryNum * 3; i++) {
+//				str += "0";
+//			}
+//		} else {
+//			str += Long.toString(rest);			
+//		}
+//		System.out.print(str);
+//	}
+	
+	public static void printNumPerThou(long num) {
+		String str = String.format("%,d", num);
+		System.out.println(str);
 	}
 	
+	
 	public static void main(String[] args) {
-		System.out.println((int)(' '));
+		printNumPerThou(1232342342423445L);
 	}
 }

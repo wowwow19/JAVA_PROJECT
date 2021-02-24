@@ -15,8 +15,8 @@ public class Food extends Merchandise {
 		this.stock = 0;
 	}
 	
-	public Food(String kind, int itemNum, String name, int price) {
-		super(name, itemNum, price);
+	public Food(String kind, int num, String name, int price) {
+		super(name, num, price);
 		this.kind = kind;
 		this.purchasePrice = (int) (price * 0.6);
 		this.stock = 2;

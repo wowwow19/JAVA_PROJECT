@@ -14,8 +14,8 @@ public class Fee extends Merchandise {
 		this.time = 0;
 	}
 	
-	public Fee(String name, int itemNum, int price, int time, boolean member) {
-		super(name, itemNum ,price);
+	public Fee(String name, int num, int price, int time, boolean member) {
+		super(name,num ,price);
 		this.time = time;
 		this.member = member;
 	}

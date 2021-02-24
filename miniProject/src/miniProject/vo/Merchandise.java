@@ -12,9 +12,7 @@ public abstract class Merchandise implements Serializable {
 	private int num;		// 상품번호
 	private int price;		// 판매가격
 	
-	public Merchandise() {
-		this(null, 0, 0);
-	}
+	public Merchandise() {}
 	
 	public Merchandise(String name, int num, int price) {
 		this.name = name;

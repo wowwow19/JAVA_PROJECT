@@ -24,8 +24,6 @@ public class Ex {
 					s.login();
 					break;
 				case 3:
-					s.end = (int)System.currentTimeMillis();
-					System.out.println(((s.end - s.start)/1000f) + "초");
 					return;
 				default:
 					System.out.println("다시 입력하세요.");
