@@ -1,8 +1,8 @@
-package miniProject.vo;
+package project01.vo;
 
 /**
  * 직렬화시 포함된 필드
- * kind, stock
+ * kind, stock, purchasePrice
  */
 public class Food extends Merchandise {
 	private static final long serialVersionUID = -6863341935051929057L;
@@ -15,6 +15,13 @@ public class Food extends Merchandise {
 		this.stock = 0;
 	}
 	
+	/**
+	 * 음식
+	 * @param kind
+	 * @param num
+	 * @param name
+	 * @param price
+	 */
 	public Food(String kind, int num, String name, int price) {
 		super(name, num, price);
 		this.kind = kind;
@@ -51,16 +58,12 @@ public class Food extends Merchandise {
 	}
 
 	public void setStock(int stock) {
-		if(this.stock > 0) {
-			this.stock = stock;
-		} else {
-			this.stock = 0;
-		}
+		this.stock = stock;
 	}
 
 	@Override
 	public String toString() {
 		return "Food [name=" + this.getName() + ", price=" + this.getPrice() + ", kind=" + kind + ", stock=" + stock + "]";
 	}
-	
+
 }

@@ -1,7 +1,6 @@
-package miniProject.service;
+package project01.service;
 
-import static miniProject.utils.CommonUtils.*;
-import static miniProject.utils.Utils.insertOrderInfo;
+import static project01.utils.CommonUtils.*;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -9,21 +8,23 @@ import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import miniProject.vo.*;
+import project01.vo.*;
 
 @SuppressWarnings("unchecked")
 public class Service {
-	public long start;												// 로그인(사용시작)시의 시간
-	public long end;												// 사용종료시의 시간
 	private int sales;												// 매출
 	private int purchase;											// 매입
 	private Account loginUser = null;								// 현재 로그인된 계정의 정보를 담을 객체
-	private Seat[] seats = new Seat[5];								// 현재좌석현황
+	private Account[] seats = new Account[5];						// 좌석목록
 	private ArrayList<Account> members = new ArrayList<Account>();	// 회원목록
 	private ArrayList<Food> menuList = new ArrayList<Food>();		// 메뉴목록
 	private ArrayList<Fee> feeList = new ArrayList<Fee>();			// 요금목록
-	private ArrayList<Seat> orderLog = new ArrayList<Seat>();		// 좌석별 사용/주문기록
+	private ArrayList<Long> times = new ArrayList<>();				// 이용시간
+	private ArrayList<Log> salesLog = new ArrayList<Log>();			// 판매기록
+	private ArrayList<Log> orderLog = new ArrayList<Log>();			// 구매(발주)기록
 	
 	{
 		try {
@@ -36,6 +37,14 @@ public class Service {
 			menuList = (ArrayList<Food>) ois.readObject();
 			ois.close();
 			
+			ois = inputObjectFile("salesLog.ser");			
+			salesLog = (ArrayList<Log>) ois.readObject();
+			ois.close();
+			
+			ois = inputObjectFile("orderLog.ser");			
+			orderLog = (ArrayList<Log>) ois.readObject();
+			ois.close();
+			
 			ois = inputObjectFile("feeList.ser");			
 			feeList = (ArrayList<Fee>) ois.readObject();
 			ois.close();
@@ -46,12 +55,7 @@ public class Service {
 			dis.close();
 		} catch(Exception e) {
 			e.printStackTrace();
-		}
-		
-		for(int i = 0; i < seats.length; i++) {		// 좌석목록의 좌석객체 초기화 수행(null값으로 채우지 않기 위함)
-			seats[i] = new Seat();
-		}
-		
+		}		
 	}
 	
 	// 회원가입
@@ -78,7 +82,6 @@ public class Service {
 					decMemNum();
 					return;
 				default:
-					decMemNum();
 					System.out.println("잘못 입력했습니다.");
 				}
 			} catch(NumberFormatException e) {
@@ -92,9 +95,16 @@ public class Service {
 	 * @param id
 	 * @return
 	 */
-	Account findBy(String id) {
+	Account findById(String id) {
 		for(int i = 0; i < members.size(); i++) {
 			if(id.equals(members.get(i).getId())) return members.get(i);
+		}
+		return null;
+	}
+	
+	Account findByPhone(String phone) {
+		for(int i = 0; i < members.size(); i++) {
+			if(phone.equals(members.get(i).getPhone())) return members.get(i);
 		}
 		return null;
 	}
@@ -112,10 +122,11 @@ public class Service {
 		String pw = insertPw();
 		String phone = insertPhone();
 		
-		Account tmpUser = new Account(id, pw, phone);
-		return tmpUser;
+		Account user = new Account(id, pw, phone);
+		
+		return user;
 	}
-	
+		
 	/**
 	 * 아이디를 입력받아 검사 후 통과시 아이디 문자열을 반환
 	 * @author 민우
@@ -140,7 +151,7 @@ public class Service {
 	 */
 	boolean checkId(String id) {
 		if(!isOnlyChar(id)) {
-			System.out.println("[오류] 아이디에는 공백이 포함될 수 없습니다.");
+			System.out.println("[오류] 아이디는 영문, 숫자가 포함된 5자 이상 13자 미만의 문자열이어야 합니다.");
 			return false;
 		}
 		if(isIdExist(id)) {
@@ -177,11 +188,7 @@ public class Service {
 	 */
 	boolean checkPw(String pw, String pwck) {
 		if(!isOnlyChar(pw)) {
-			System.out.println("[오류] 비밀번호에는 공백이 포함될 수 없습니다.");
-			return false;
-		}
-		if(!isPwLengthEnough(pw)) {
-			System.out.println("[오류] 비밀번호는 5자 이상이어야 합니다.");
+			System.out.println("[오류] 비밀번호는 영문, 숫자가 포함된 5자 이상 12자 미만의 문자열이어야 합니다.");
 			return false;
 		}
 		if(!isPwMatch(pw, pwck)) {
@@ -213,7 +220,7 @@ public class Service {
 	 * @return
 	 */
 	boolean checkPhone(String phone) {
-		if(!isPhoneOnlyNum(phone) || !isPhoneLengthEnough(phone)) {
+		if(!isOnlyNum(phone) || !isPhoneLengthEnough(phone)) {
 			System.out.println("[오류] 전화번호는 10자리 또는 11자리의 숫자로만 입력해야 합니다.");
 			return false;
 		}
@@ -228,12 +235,9 @@ public class Service {
 	 * 			공백이 포함되었을 경우 false 반환, 포함되지 않았을 경우 true 반환
 	 */	
 	boolean isOnlyChar(String str) {
-		for(int i = 0; i < str.length(); i++) {
-			if(str.charAt(i) == 32) {
-				return false;
-			}
-		}
-		return true;
+		Pattern regex = Pattern.compile("^[A-Za-z[0-9]]{5,12}$");
+		Matcher idMatcher = regex.matcher(str);
+		return idMatcher.matches();
 	}
 
 	/**
@@ -245,7 +249,7 @@ public class Service {
 	 * 			이미 존재할경우 true 반환, 존재하지 않을경우 false 반환
 	 */
 	boolean isIdExist(String id) {
-		Account tmp = findBy(id);
+		Account tmp = findById(id);
 		
 		if(tmp != null) {
 			return true;			
@@ -253,24 +257,7 @@ public class Service {
 		
 		return false;
 	}
-				
-	
-	/**
-	 * 비밀번호가 5자 이상인지 검사한 후 boolean값을 반환
-	 * @author 민우
-	 * @param pw
-	 * 			검사할 pw 문자열
-	 * @return
-	 * 			5자 미만일 경우 false 반환, 5자 이상일 경우 true 반환
-	 */
-	boolean isPwLengthEnough(String pw) {
-		if(pw.length() < 5) {
-			return false;
-		}
-		return true;
-	}
-	
-	
+					
 	/**
 	 * 입력한 비밀번호와 비밀번호확인 문자열이 동일한지 검사한 후 boolean값을 반환
 	 * @author 민우
@@ -296,7 +283,7 @@ public class Service {
 	 * @return
 	 * 			숫자 외의 문자가 포함되었을 경우 false 반환, 숫자만으로 이루어진 경우 true 반환
 	 */
-	boolean isPhoneOnlyNum(String phone) {
+	boolean isOnlyNum(String phone) {
 		for(int i = 0; i < phone.length(); i++) {
 			if(phone.charAt(i) < '0' || phone.charAt(i) > '9') {
 				return false;
@@ -305,19 +292,27 @@ public class Service {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param phone
+	 * @return
+	 */
 	boolean isPhoneLengthEnough(String phone) {
-		if(phone.length() < 10 || phone.length() > 11) return false;
+		if(phone.length() < 10 || phone.length() > 11) {
+			return false;
+		}
 		return true;
 	}
-		
+			
 	// 로그인
 	/**
+	 * 
 	 * @author 보경
 	 */
 	public void login() {
 		String id = "";
 		String pw = "";
-		String phone = "";
 		while(true) {
 			printLoginMenu();
 			int input = nextInt();
@@ -330,7 +325,6 @@ public class Service {
 				if(findBy(id, pw) != null) {
 					loginUser = findBy(id, pw);
 					System.out.println("로그인성공");
-					System.out.println(loginUser.isStatus());
 					if(loginUser == members.get(0)) {
 						adminMenu();
 					}
@@ -338,7 +332,7 @@ public class Service {
 						memberMenu();
 					}
 				}
-				else if(findBy(id) == null) {
+				else if(findById(id) == null) {
 					System.out.println("아이디 확인 후 다시 입력");
 				}
 				else {
@@ -347,20 +341,22 @@ public class Service {
 				break;
 				
 			case 2: // 비회원 로그인
-				System.out.print("전화번호 입력 > ");
-				phone = nextLine();
-				loginUser = new Account(phone); // 비회원 생성자 호출
-				System.out.println("임시회원번호: " + loginUser.getNum());
-				System.out.println(loginUser);
+				registerNoMem();
 				memberMenu();
 				break;
-				
 			case 3: // 이전
 				return;
 			default:
 				System.out.println("1~3값으로 다시 입력");
 			}
 		}
+	}
+	
+	void registerNoMem() {
+		String phone = insertPhone();
+		loginUser = new Account(phone); // 비회원 생성자 호출
+		System.out.println("임시회원번호: " + loginUser.getNum());
+		System.out.println(loginUser);
 	}
 	
 	/**
@@ -370,7 +366,7 @@ public class Service {
 	 * @return 회원정보에 일치하는 값이 있으면 해당 계정정보를 반환
 	 */
 	Account findBy(String id, String pw) {
-		if(findBy(id) != null) {
+		if(findById(id) != null) {
 			for(int i = 0 ; i < members.size(); i++) {
 				if(id.equals(members.get(i).getId()) && pw.equals(members.get(i).getPw())) {
 					return members.get(i);
@@ -395,10 +391,8 @@ public class Service {
 	 * @author 민우
 	 */
 	public void memberMenu() {
-		boolean run = true;
-		
-		try {
-			while(run) {
+		while(true) {
+			try {
 				printMemberMenu();
 				int input = nextInt();
 				
@@ -420,46 +414,69 @@ public class Service {
 					break;
 				case 6:	// 로그아웃
 					logout();
-					return;
+					break;
 				default:
 					System.out.println("다시 입력하세요.");
 				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");                                                                                           
 			}
-		} catch(NumberFormatException e) {
-			System.out.println("숫자로 입력하세요.");
 		}
+	}
+	
+	void printMemberMenu() {
+		System.out.println("===================================== 홈 > 로그인 > 회원메뉴 ========================================");
+		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
+		System.out.println("                │   1. 좌석선택    │  │   2. 요금결제    │  │   3. 음식구매    │               ");
+		System.out.println("                └─────────┘  └─────────┘  └─────────┘               ");
+		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
+		System.out.println("                │ 4. 이용상태관리  │  │   5. 정보수정    │  │   6. 로그아웃    │               ");
+		System.out.println("                └─────────┘  └─────────┘  └─────────┘               ");
+		System.out.println("=====================================================================================================");
+		System.out.print("메뉴를 선택하세요. > ");
 	}
 	
 	// 좌석선택
 	/**
 	 * @author 민우
 	 */
-	public void selectSeat() {
-		boolean run = true;
-		
-		while(run) {
+	public void selectSeat() {		
+		while(true) {
 			for(int i = 0; i < seats.length; i++) {
-				if(seats[i].getUser() == loginUser) {
+				if(seats[i] == loginUser) {
+					printEmptySeat();
 					System.out.println(loginUser.getId() + "님은 이미 " + (i+1) + "번 좌석을 사용중입니다.");
+					System.out.print("좌석을 이동하시겠습니까? 1. 예 2. 아니오 > ");
+					int input = nextInt();
+					if(input == 1) {
+						seats[i] = null;
+						loginUser.setSeatNum(-1);
+						System.out.println("좌석을 다시 선택해주세요.");
+					}
 					return;
 				}
 			}
 			printSelectSeatMenu(seats);
 			int input = nextInt()-1;
 			
-			if(seats[input].getUser() == null) {
-				seats[input].setUser(loginUser);
-				break;					
+			if(input >= 0 && input <= 4) {
+				if(seats[input] == null) {
+					seats[input] = loginUser;
+					loginUser.setSeatNum(input);
+					break;					
+				} else {
+					System.out.println("이미 이용중인 좌석입니다.");
+				}				
 			} else {
-				System.out.println("이미 이용중인 좌석입니다.");
+				System.out.println("다시 입력해주세요.");
 			}
 		}
 	}
-	
+		
 	/**
 	 * 
 	 * @param seats
-	 */	void printSelectSeatMenu(Seat[] seats) {
+	 */	void printSelectSeatMenu(Account[] seats) {
 		System.out.println("======================================= 회원메뉴 > 좌석선택 =========================================");
 		printEmptySeat();
 		System.out.println("=====================================================================================================");
@@ -473,7 +490,7 @@ public class Service {
 	 */
 	void printEmptySeat() {
 		for(int i = 0; i < seats.length; i++) {
-			if(seats[i].getUser() == null) {
+			if(seats[i] == null) {
 				System.out.println((i+1)+ "번 좌석" + " : " + "◻︎ 이용가능");				
 			} else {
 				System.out.println((i+1) + "번 좌석" + " : " + "☒ 이용중");
@@ -488,74 +505,35 @@ public class Service {
 	 * @author 찬희
 	 */
 	public void pay() {
-		boolean run = true;
-		while(run) {
+		while(true) {
 			try {
-
 				printPayMenu();
 				int input = nextInt();
-				System.out.println(loginUser.isMember());
 				switch(input) {
 				case 1:	
-//					for(int i = 0; i < feeList.size() ; i++) {
-//						
-//						if(loginUser.isMember() == feeList.get(i).isMember()) {
-//							System.out.println(printFeeList());
-//						}
-//					}
 					printFeeList();
-					// 입력 받음
-					// 
 					System.out.println("사용할 요금제 선택");
 					input = nextInt();
 					Fee fe = findBy(input);
-					System.out.println(fe);
-					System.out.println("요금을 결제하시겠습니까?");
-					
-					System.out.println("1.네 | 2.아니오");
-					input = nextInt();
-					if(input == 1) {
-						sales += fe.getPrice();
-						int ff = fe.getTime();
-						loginUser.setRemainTime(ff + loginUser.getRemainTime());
-						System.out.println(sales + "원");
-						System.out.println(loginUser.getRemainTime() + "분");
-						save("transaction.ser", sales,purchase);
-						save("memberList.ser", members);
-						break;
-					}else if(input == 2) {
-						memberMenu(); 
+					if(fe != null) {
+						printFeeInfo(fe);
+						System.out.println("요금을 결제하시겠습니까?");
+						System.out.println("1.네 | 2.다시선택 | 3. 취소");
+						input = nextInt();
+						if(input == 1) {
+							sales += fe.getPrice();
+							int ff = fe.getTime();
+							loginUser.setRemainTime(ff + loginUser.getRemainTime());
+							System.out.println("요금결제 완료");
+							System.out.println(loginUser.getId() + "님의 남은시간 : " + loginUser.getRemainTime() + "분");
+							addSalesLog(fe);
+							save("transaction.ser", sales,purchase);
+							save("memberList.ser", members);
+							break;
+						} else if(input == 2) {
+							break;
+						}
 					}
-					
-//					int increseTime = feeList.get(input).getTime(); // << 증가될 시간
-//					System.out.println(increseTime + "분");
-//					int price = fe.getItemNum().getPrice(); // << 매출에 추가될 요금
-//					System.out.println(price + "원");
-//					System.out.println("요금을 결제하시겠습니까?");
-//					System.out.println("1.네 | 2.아니오");
-//					input = nextInt();
-					
-					
-					
-					
-//					switch(input) {
-//					case 1 :sales += price;
-//					 System.out.println("결제가 완료되었습니다.");
-//					case 2 :memberMenu();
-//					}
-					// 요금선택
-						// isMem이 false(비회원)일 때\
-							// 1. 비회원 요금목록(feeListNoMem) 출력
-							// 2. Fee객체의 itemNum으로 요금 선택
-							// 3. 선택한 요금 결제여부 묻기
-							// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-							// 5. 이용상태관리(ControlStat())로 넘어가기
-						// isMem이 true(회원)일 때
-							// 1. 회원 요금목록(feeListMem) 출력
-							// 2. Fee객체의 itemNum으로 요금 선택
-							// 3. 선택한 요금 결제여부 묻기
-							// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-							// 5. 이용상태관리(ControlStat())로 넘어가기
 				case 2:	// 다음 : 이용상태관리
 					return;	
 				default:
@@ -600,132 +578,188 @@ public class Service {
 		System.out.println("======================================================================================================");
 		System.out.print("메뉴를 선택하세요. > ");
 	}
+	
+	/**
+	 * 
+	 * @param item
+	 */
+	void addSalesLog(Fee fee) {
+		Date date = new Date(System.currentTimeMillis());
+		Log log = new Log(loginUser, fee, date);
+		salesLog.add(log);
+		save("salesLog.ser", salesLog);
+	}
 
 	// 이용상태관리
 	/**
 	 * @author 보경
 	 */
-	@SuppressWarnings("deprecation")
 	public void controlStat() {
-//		start = (int)System.nanoTime();
-//		System.out.println("1.일시정지 2. 이용종료 3. 이전(요금결제) 4. 다음(음식구매)");
-//		int input = nextInt();
-//		switch(input) {
-//		case 1:
-//			pauseOfUse();
-//			break;
-//		case 2:
-//			end = (int)System.nanoTime();
-//			System.out.println("이용 종료됨. 총 이용시간: " + (end-start));
-//			System.out.println("남은시간: ");
-//			loginUser = null;// 로그아웃
-//			break;
-//		case 3: case 4:
-//			nestedSwitch();
-//		}
-		boolean run = true;
-		SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-		SimpleDateFormat totalUsingTime = new SimpleDateFormat("HH:mm:ss");
-		ArrayList<Long> times = new ArrayList<>();
-		
-		while(run) {
+		while(true) {
 			printControlStatMenu();
 			int input = nextInt();
 			
 			switch(input) {
-			case 1:
-				if(!loginUser.isStatus()) {
-					times.add(System.currentTimeMillis());
-					loginUser.setStatus(true);
-				} else {
-					System.out.println("이미 이용중입니다.");
-				}
+			case 1: // 이용시작
+				startUse();
 				break;
-			case 2:
-				if(loginUser.isStatus()) {		// 이용중상태
-					times.add(System.currentTimeMillis());
-					loginUser.setStatus(false);
-				} else {
-					System.out.println("이용중인 상태가 아닙니다.");
-				}
+			case 2: // 일시정지
+				pauseUse();
 				break;					
-			case 3:
-				if(loginUser.isStatus()) {
-					long usingTime = 0;
-					times.add(System.currentTimeMillis());
-					for(int i = 1; i < times.size(); i+=2) {
-						System.out.println("시작시간 : " + totalUsingTime.format(new Date(times.get(i-1))));
-						System.out.println("종료시간 : " + totalUsingTime.format(new Date(times.get(i))));
-						usingTime += (times.get(i) - times.get(i-1));
-					}
-//					System.out.println("사용시간 : " + (int)usingTime / 1000);
-					Date date = new Date(usingTime);
-					date.setHours(0);
-					System.out.println("사용시간 : " + totalUsingTime.format(date));
-					loginUser = null;
-					times = null;
-					return;
-				} else {
-					System.out.println("이용중인 상태가 아닙니다.");
-					break;
-				}
+			case 3: // 이용종료
+				stopUse();
+				break;
 			case 4:
 				return;
 			}
 		}
 	}
 	
+	void startUse() {
+		if(loginUser.getRemainTime() <= 0) {	// 이용시간이 0 미만일 경우
+			System.out.println("요금 결제 후 이용가능.");
+		} else if(!loginUser.isStatus()) {		// 이용중이 아닐 경우
+			loginUser.setStatus(true);
+			times.add(System.currentTimeMillis());
+			System.out.println("이용시작됨.");		
+		} else {								// 이미 이용중일 경우
+			System.out.println("이미 이용중입니다.");
+		}
+	}
+	
+	void pauseUse() {
+		if(loginUser.isStatus()) {		// 이용중인 상태에서 일시정지 하는 경우
+			times.add(System.currentTimeMillis());
+			calUsingTime();
+			loginUser.setStatus(false);
+			System.out.println("일시정지됨.");
+		} else {						// 일시정지 상태에서 일시정지를 다시 하는 경우
+			System.out.println("이용중인 상태가 아닙니다.");
+		}
+	}
+	
+	void stopUse() {
+		if(loginUser.isStatus()) {	// 이용중인 상태일 때
+			times.add(System.currentTimeMillis());
+		}
+		
+		calRemainTime();
+
+		
+		if(loginUser.getRemainTime() < 0) { // 남은 이용시간이 음수 >> 초과시간 추가결제
+			payAdditionalFee();
+		}
+		
+		loginUser.setStatus(false);
+		times = new ArrayList<Long>();
+
+		logout();
+	}
+	
+	void calRemainTime() {
+		long totalUsingTime = 0;
+		calUsingTime();
+		
+		for(int i = 1; i < times.size() ; i+=2) {
+			totalUsingTime += (times.get(i) - times.get(i-1)) / 1000;
+		}
+		
+		System.out.println("총 이용시간 : " + printTime(totalUsingTime));
+		System.out.println(loginUser.getId() + "님의 남은 이용시간 : " + printTime(loginUser.getRemainTime()));
+	}
+	
+	void calUsingTime() {
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+		long usingTime = 0;
+		
+		for(int i = 1; i < times.size() ; i+=2) {
+			System.out.println("시작시간 : " + timeFormat.format(new Date(times.get(i-1))));
+			System.out.println("정지시간 : " + timeFormat.format(new Date(times.get(i))));
+			usingTime = (times.get(i) - times.get(i-1)) / 1000;
+			System.out.println("지금까지 이용시간: " + printTime(usingTime));
+		}
+		
+		if(loginUser.isStatus()) {	// 이용중에서 바로 이용종료 할 경우
+			loginUser.setRemainTime((int) (loginUser.getRemainTime() - usingTime));			
+		}
+	}
+	
+	boolean isPauseStat() {
+		if(!(loginUser.isStatus()) && times != null) {
+			return true;
+		}
+		return false;
+	}
+	
+	String printTime(long totalUsingTime) {
+		String str = "";
+		int hour = 0;
+		
+		if(totalUsingTime < 0) {
+			totalUsingTime = -totalUsingTime;
+			str += "-";
+		}
+		
+		if((int)totalUsingTime > 60) {
+			hour = (int) (totalUsingTime / 60);
+			totalUsingTime %= 60;
+		}
+		str += hour + "시간" + (int)totalUsingTime + "분";
+		return str;
+	}
+	
+	/** @author 보경
+	 * 이용시간 초과시 추가요금 결제화면 출력
+	 * 결제한 시간이 초과시간보다 작으면 계속 결제화면 출력.
+	 */
+	void payAdditionalFee() {
+//		int overTimeInUse = (int)(Math.abs(loginUser.getRemainTime())); 							// 남은 이용시간이 음수면(초과시간) 절대값으로 변환
+		System.out.println("추가요금을 결제해 주세요.");
+//		System.out.println("overTimeInUse" + overTimeInUse); 							// test
+//		printFeeList(overTimeInUse);
+		while(loginUser.getRemainTime() < 0) {
+			printFeeList();
+			System.out.print("요금제 선택: ");
+			int input = nextInt();
+			Fee fe = findBy(input);
+			
+			System.out.println("요금을 결제하시겠습니까?");
+			System.out.println("1.네 | 2.아니오");
+			input = nextInt();
+			if(input == 1) {
+				sales += fe.getPrice();
+				int ff = fe.getTime();
+				loginUser.setRemainTime(loginUser.getRemainTime() + ff);
+//				System.out.println(sales + "원");
+				System.out.println(loginUser.getId() + "님의 남은 이용시간 : " + printTime(loginUser.getRemainTime()));
+				addSalesLog(fe);
+				save("transaction.ser", sales, purchase);
+				save("memberList.ser", members);
+			}
+		}
+		return;
+	}
+	
 	void printControlStatMenu() {
 		System.out.println("====================================  회원메뉴 > 이용상태관리  ======================================");
+		System.out.println("                             현재 상태 : " + (loginUser.isStatus() ? "이용중" : "이용중이 아님") + " | 남은 시간 : " + loginUser.getRemainTime() + "분");
 		System.out.println("    ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   ");
 		System.out.println("    │   1. 이용시작    │  │   2. 일시정지    │  │   3. 이용종료    │  │    4. 이 전      │   ");
 		System.out.println("    └─────────┘  └─────────┘  └─────────┘  └─────────┘   ");
 		System.out.println("=====================================================================================================");
 		System.out.print("메뉴를 선택하세요. > ");
 	}
-	
-	void pauseOfUse() {
-		int pauseTime = (int)System.nanoTime();
-		System.out.println("일시정지됨. 현재까지 이용시간: " + (pauseTime - start));
-		System.out.println("1. 이용재개 2. 이용종료 3. 이전(요금결제) 4. 다음(음식구매)");
-		int input = nextInt();
-		switch(input) {
-		case 1:
-			resumeOfUse();
-			break;
-		case 2:
-			System.out.println("이용 종료됨. 총 이용시간: " + (pauseTime-start));
-			System.out.println("남은시간: ");
-			loginUser = null;// 로그아웃
-			break;
-		case 3: case 4:
-			nestedSwitch();
-		}
-	}
-	
-	void resumeOfUse() {
-		int resumeTime = (int)System.nanoTime();
-		System.out.println("이용이 재개되었습니다.");
-		controlStat();
-	}
-	
-	void nestedSwitch() {
-		System.out.println("3. 이전(요금결제) 4. 다음(음식구매)");
-		int reInput = nextInt();
-		switch(reInput) {
-		case 3:
-			pay();
-			break;
-		case 4:
-			purchase();
-			break;
-		default:
-			System.out.println("올바른 값 입력.");
-		}
-	}
-	
+		
 	// 회원정보수정(회원메뉴)
+	/**
+	 * 
+	 * @author 민우
+	 */
 	void updateInfo() {
+		if(!loginUser.isMember()) {
+			System.out.println("비회원은 정보를 수정할 수 없습니다.");
+			return;
+		}
 		printMemberInfo(loginUser);
 		System.out.println("============================== 회원메뉴 > 정보수정 =================================");
 		System.out.println("회원정보는 비밀번호, 전화번호만 수정가능합니다.");
@@ -735,7 +769,11 @@ public class Service {
 		loginUser.setPw(pw);
 		loginUser.setPhone(phone);			
 	}
-
+	
+	/**
+	 * @author 민우
+	 * @return
+	 */
 	String updatePw() {
 		while(true) {
 			System.out.print("비밀번호(기존값:" +  loginUser.getPw() + ") > ");
@@ -749,6 +787,11 @@ public class Service {
 		}
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @return
+	 */
 	String updatePhone() {
 		while(true) {
 			System.out.print("전화번호(기존값:" +  loginUser.getPhone() + ") > ");
@@ -759,7 +802,11 @@ public class Service {
 			}
 		}
 	}
-		
+	
+	/**
+	 * 
+	 * @author 민우
+	 */
 	void logout() {
 		if(loginUser.isStatus()) {
 			System.out.println("로그아웃 전 이용을 종료해주세요.");
@@ -767,147 +814,47 @@ public class Service {
 		}
 		int idx = findSeatByUser(loginUser);
 		if(idx != -1) {
-			seats[idx] = new Seat();			
+			seats[idx] = null;
 		}
+		loginUser.setSeatNum(-1);
 		loginUser = null;
+		save("memberList.ser", members);
+		System.out.println("이용을 종료합니다. 이용해주셔서 감사합니다.");
+		System.exit(0);
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param user
+	 * @return
+	 */
 	int findSeatByUser(Account user) {
 		for(int i = 0; i < seats.length; i++) {
-			if(seats[i].getUser() == user) return i;
+			if(seats[i] == user) return i;
 		}
 		return -1;
 	}
 
 	
 	/**
+	 * 
 	 * @author 소연
 	 */
 	public void purchase() {
-		int itemNum = 0;
-		String menuName = "";
-		int menuStock = 0;
-		int Price = 0;
-
 		boolean run = true;
-
 		while (run) {
 			try {
-				// printPurchaseMenu();
-				System.out.println("주문코너 입니다. 카테고리의 숫자를 입력하십시오.");
-				System.out.println("1. 식사 2, 사이드 3. 스낵 4. 음료 5. 커피/차");
+				printPurchaseMenu();
 				int input = nextInt();
-				boolean menuChk = true;
 				
-				switch (input) {
-				case 1: // 식사류
-						// 1. mealList의 식사메뉴 하나씩 출력하기
-					System.out
-							.println("	" + "주문번호" + "\t" + "메뉴" + "				" + "가격" + "\t   " + "재고량" + "\t");
-					System.out.println("---------------------------------------------------------------------------------------------");
-					for (int i = 0; i < 24; i++) { // menuList 출력
-						System.out.println("\t" + menuList.get(i).getItemNum() + "\t" + menuList.get(i).getName()
-								+ "\t		" + menuList.get(i).getPrice() + "\t	" + menuList.get(i).getStock());
-					}
-					System.out.println("--------------------------------------------------------------------------------------------");
-					System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
-
-					// 2. Food객체의 itemNum으로 메뉴 선택
-			
-					
-					// 3. 선택한 메뉴 갯수와 결제여부 묻기
-
-
-	                  
-					// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-					
-					// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
-					break;
-					
-				case 2: // 사이드
-						// 1. sideList의 사이드메뉴 하나씩 출력하기
-					System.out
-							.println("	" + "주문번호" + "\t" + "메뉴" + "				" + "가격" + "\t   " + "재고량" + "\t");
-					System.out.println("---------------------------------------------------------------------------------------------");
-					for (int i = 24; i <=35 ; i++) { // menuList 출력
-						System.out.println("\t" + menuList.get(i).getItemNum() + "\t" + menuList.get(i).getName()
-								+ "\t		" + menuList.get(i).getPrice() + "\t	" + menuList.get(i).getStock());
-					}
-					System.out.println("--------------------------------------------------------------------------------------------");
-					System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
-					// 2. Food객체의 itemNum으로 메뉴 선택
-					//itemNum = nextInt(); // 상품번호 입력
-					// 3. 선택한 메뉴 갯수와 결제여부 묻기
-	
-					// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-					
-					// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
-					
-					break;
-				case 3: // 스낵
-						// 1. snackList의 스낵메뉴 하나씩 출력하기
-					System.out
-							.println("	" + "주문번호" + "\t" + "메뉴" + "				" + "가격" + "\t   " + "재고량" + "\t");
-					System.out.println("---------------------------------------------------------------------------------------------");
-					for (int i = 36; i <= 49; i++) { // menuList 출력
-						System.out.println("\t" + menuList.get(i).getItemNum() + "\t" + menuList.get(i).getName()
-								+ "\t		" + menuList.get(i).getPrice() + "\t	" + menuList.get(i).getStock());
-					}
-					System.out.println("--------------------------------------------------------------------------------------------");
-					System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
-					// 2. Food객체의 itemNum으로 메뉴 선택
-					//itemNum = nextInt(); // 상품번호 입력
-					// 3. 선택한 메뉴 갯수와 결제여부 묻기
-
-					// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-					
-					// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
-					
-					break;
-				case 4: // 음료
-						// 1. beverageList의 음료메뉴 하나씩 출력하기
-					System.out
-							.println("	" + "주문번호" + "\t" + "메뉴" + "				" + "가격" + "\t   " + "재고량" + "\t");
-					System.out.println("---------------------------------------------------------------------------------------------");
-					for (int i = 50; i <=66; i++) { // menuList 출력
-						System.out.println("\t" + menuList.get(i).getItemNum() + "\t" + menuList.get(i).getName()
-								+ "\t		" + menuList.get(i).getPrice() + "\t	" + menuList.get(i).getStock());
-					}
-					System.out.println("--------------------------------------------------------------------------------------------");
-					System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
-					// 2. Food객체의 itemNum으로 메뉴 선택
-					//itemNum = nextInt(); // 상품번호 입력
-					// 3. 선택한 메뉴 갯수와 결제여부 묻기
-
-					// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-					
-					// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
-					
-					break;
-				case 5: // 차/커피
-						// 1. teaList의 차메뉴 하나씩 출력하기
-					System.out
-							.println("	" + "주문번호" + "\t" + "메뉴" + "				" + "가격" + "\t   " + "재고량" + "\t");
-					System.out.println("---------------------------------------------------------------------------------------------");
-					for (int i = 67; i <=96; i++) { // menuList 출력
-						System.out.println("\t" + menuList.get(i).getItemNum() + "\t" + menuList.get(i).getName()
-								+ "\t		" + menuList.get(i).getPrice() + "\t	" + menuList.get(i).getStock());
-					}
-					System.out.println("--------------------------------------------------------------------------------------------");
-					System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
-					// 2. Food객체의 itemNum으로 메뉴 선택
-					//itemNum = nextInt(); // 상품번호 입력
-					// 3. 선택한 메뉴 갯수와 결제여부 묻기
-
-					// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
-					
-					// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
-					break;
-				case 6: // 이전(이용상태관리)
-					controlStat();
-				case 7: // 로그아웃(초기화면으로 이동)
+				int[] arr = {0, 24, 36, 50, 67, 97};
+				
+				if(input > 0 && input < 6) {
+					purchaseMenu(arr[input-1], arr[input]);
+				} else if(input == 6) {
 					return;
-				default:
+				} else {
 					System.out.println("다시 입력하세요.");
 				}
 			} catch (NumberFormatException e) {
@@ -916,6 +863,74 @@ public class Service {
 		}
 	}
 	
+	/**
+	 * 
+	 * @author 소연
+	 * @param start
+	 * @param end
+	 */
+	void purchaseMenu(int start, int end) {
+		// 출력포맷 
+		String[] menus = {"상품번호", "상품명", "가격", "재고"};
+		String[] str = new String[4];
+		int[] len = {20, 40, 20, 20};
+		
+		// 변수
+		Food food = new Food();
+		int itemAmount = 0;
+		
+		System.out.println("==============================================<상품목록>=============================================");
+		System.out.println(format(menus, len));
+		for (int i = start; i < end; i++) { // menuList 출력
+			str[0] = String.valueOf(menuList.get(i).getItemNum());
+			str[1] = menuList.get(i).getName();
+			str[2] = String.valueOf(menuList.get(i).getPrice());
+			str[3] = String.valueOf(menuList.get(i).getStock());
+			System.out.println(format(str, len));
+		}
+	
+		System.out.println("=====================================================================================================");
+		System.out.println("주문하실 메뉴의 번호를 입력해주세요 >");
+		
+		int itemNum = nextInt();
+			
+		if(itemNum < start || itemNum > end) {
+			System.out.println("현재 카테고리에 존재하지 않는 주문번호입니다.");
+			return;
+		} else {						
+			food = findItemByNum(start, end, itemNum);
+		}
+		
+		System.out.println(food.getName() + " (재고 : " + food.getStock() + "개)");
+		
+		// 3. 선택한 메뉴 갯수와 결제여부 묻기					
+		// 4. 결제시 금액(price)만큼 총매출(sales)에 추가
+		// 5. 결제시 구매한 갯수만큼 Food객체의 재고(stock)값 감소시키기
+		System.out.println("몇개 구입하시겠습니까?");
+		
+		itemAmount = nextInt();
+		
+		if(itemAmount > food.getStock()) {
+			System.out.println("재고량을 초과해서 구매할 수 없습니다.");
+			return;
+		} else if(itemAmount < 1) {
+			System.out.println("1개 이상의 값을 입력해 주세요.");
+			return;
+		} else {
+			System.out.println(food.getName() + " " + itemAmount + "개를 구매하셨습니다.");
+			sales += (food.getPrice()*itemAmount);
+			food.setStock(food.getStock() - itemAmount);
+			save("transaction.ser", sales, purchase);
+			save("menuList.ser", menuList);
+			addSalesLog(food, itemAmount);
+		}	
+	}
+	
+	/**
+	 * 
+	 * @author 소연
+	 * 
+	 */
 	void printPurchaseMenu() {
 		System.out.println("========================================  회원메뉴 > 구 매  =========================================");
 		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
@@ -928,16 +943,27 @@ public class Service {
 		System.out.print("메뉴를 선택하세요. > ");
 	}
 	
+	/**
+	 * 
+	 * @param item
+	 * @param num
+	 */
+	void addSalesLog(Food food, int num) {
+		Date date = new Date(System.currentTimeMillis());
+		Log log = new Log(loginUser, food, num, date);
+		salesLog.add(log);
+		save("salesLog.ser", salesLog);
+	}
+	
+	
 	// 관리자메뉴
 	/**
 	 * 관리자계정(admin)으로 로그인했을 경우 각 관리자 기능을 호출하는 메뉴를 출력
 	 * @author 민우
 	 */
-	public void adminMenu() {
-		boolean run = true;
-		
-		try {
-			while(run) {
+	public void adminMenu() {		
+		while(true) {
+			try {
 				printAdminMenu();
 				int input = nextInt();
 				
@@ -956,12 +982,16 @@ public class Service {
 				default:
 					System.out.println("다시 입력하세요.");
 				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");
 			}
-		} catch(NumberFormatException e) {
-			System.out.println("숫자로 입력하세요.");
 		}
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 */
 	void printAdminMenu() {
 		System.out.println("===================================== 홈 > 로그인 > 관리자메뉴 ======================================");
 		System.out.println("    ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   ");
@@ -977,10 +1007,8 @@ public class Service {
 	 * @author 민우
 	 */
 	public void manageMember() {
-		boolean run = true;
-		
-		try {
-			while(run) {
+		while(true) {
+			try {
 				printMngMemMenu();
 				int input = nextInt();
 				
@@ -996,9 +1024,9 @@ public class Service {
 				default:
 					System.out.println("다시 입력하세요.");
 				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");
 			}
-		} catch(NumberFormatException e) {
-			System.out.println("숫자로 입력하세요.");
 		}
 	}
 	
@@ -1012,26 +1040,35 @@ public class Service {
 	}
 	
 	// 회원관리 > 회원정보수정
+	/**
+	 * 
+	 * @author 민우
+	 */
 	void updateMem() {
 		printMemberList(members);
 		while(true) {
 			try {
 				System.out.print("수정할 회원번호를 입력하세요. > ");
-				int idx = findByNum(nextInt());
-				if(idx == -1) {
-					System.out.println("찾을 수 없습니다.");
+				int input = nextInt();
+				if(input != 1) {
+					int idx = findByNum(input);
+					if(idx == -1) {
+						System.out.println("찾을 수 없습니다.");
+					} else {
+						printMemberInfo(members.get(idx));
+						System.out.print("찾는 회원이 맞습니까? 1. 예 2. 아니요 3. 취소 > ");
+						int check = nextInt();
+						
+						if(check == 1) {
+							updateInfo(idx);
+							System.out.println("수정이 완료되었습니다.");
+							break;
+						} else if(check == 3) {
+							return;
+						}		
+					}
 				} else {
-					printMemberInfo(members.get(idx));
-					System.out.print("찾는 회원이 맞습니까? 1. 예 2. 아니요 3. 취소 > ");
-					int check = nextInt();
-					
-					if(check == 1) {
-						updateInfo(idx);
-						System.out.println("수정이 완료되었습니다.");
-						break;
-					} else if(check == 3) {
-						return;
-					}		
+					System.out.println("관리자계정은 수정할 수 없습니다.");
 				}
 			} catch(NumberFormatException e) {
 				System.out.println("숫자로 입력하세요.");
@@ -1040,6 +1077,12 @@ public class Service {
 		return;
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param num
+	 * @return
+	 */
 	int findByNum(int num) {
 		for(int i = 0; i < members.size(); i++) {
 			if(num == members.get(i).getNum()) return i;
@@ -1047,6 +1090,11 @@ public class Service {
 		return -1;
 	}	
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param idx
+	 */
 	void updateInfo(int idx) {
 		System.out.println("================================ 관리자메뉴 > 회원관리 > 회원정보수정 ===============================");
 		System.out.println("회원정보는 비밀번호, 전화번호, 남은시간만 수정가능합니다.");
@@ -1059,6 +1107,12 @@ public class Service {
 		members.get(idx).setRemainTime(total);
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param idx
+	 * @return
+	 */
 	String updatePw(int idx) {
 		while(true) {
 			System.out.print("비밀번호(기존값:" +  members.get(idx).getPw() + ") > ");
@@ -1072,6 +1126,12 @@ public class Service {
 		}
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param idx
+	 * @return
+	 */
 	String updatePhone(int idx) {
 		while(true) {
 			System.out.print("전화번호(기존값:" +  members.get(idx).getPhone() + ") > ");
@@ -1082,7 +1142,13 @@ public class Service {
 			}
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @author 민우
+	 * @param idx
+	 * @return
+	 */
 	int updateRemainTime(int idx) {
 		while(true) {
 			int remainTime = members.get(idx).getRemainTime();
@@ -1097,6 +1163,13 @@ public class Service {
 		}
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param remainTime
+	 * @param total
+	 * @return
+	 */
 	boolean checkRemainTime(int remainTime, int total) {
 		if(!isRemainTimeOnlyNum(remainTime)) {
 			System.out.println("[오류] 남은시간은 양수 또는 음수의 정수만 입력해야 합니다.");
@@ -1109,6 +1182,12 @@ public class Service {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param remainTime
+	 * @return
+	 */
 	boolean isRemainTimeOnlyNum(int remainTime) {
 		if(remainTime < 0) {
 			remainTime = -remainTime;
@@ -1122,6 +1201,12 @@ public class Service {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @author 민우
+	 * @param total
+	 * @return
+	 */
 	boolean isTimeUnderZero(int total) {
 		if(total < 0) return true;
 		return false;
@@ -1135,32 +1220,49 @@ public class Service {
 	 * 			회원 목록
 	 */
 	void deleteMem() {
-		printMemberList(members);
 		while(true) {
 			try {
 				System.out.println("================================ 관리자메뉴 > 회원관리 > 회원삭제 ===================================");
-				System.out.print("삭제할 회원번호를 입력하세요. > ");
-				int idx = findByNum(nextInt());
-				if(idx == -1) {
-					System.out.println("찾을 수 없습니다.");
-				} else {
-					printMemberInfo(members.get(idx));
-					System.out.print("찾는 회원이 맞습니까? 1. 예 2. 아니오 3. 취소 > ");
-					int check = nextInt();
-					
-					if(check == 1) {
-						checkDeleteMem(idx);
-						break;					
-					} else if(check == 3) {
-						return;
-					}
-				}
+				int idx = insertUserNum();
+				System.out.print("찾는 회원이 맞습니까? 1. 예 2. 아니오 3. 취소 > ");
+				int input = nextInt();
+				
+				switch(input) {
+				case 1:
+					checkDeleteMem(idx);
+					break;
+				case 2:
+					break;
+				case 3:
+					return;
+				default:
+					System.out.println("다시 입력하세요.");
+				}				
 			} catch(NumberFormatException e) {
 				System.out.println("숫자로 입력하세요.");
 			}		
 		}
 	}
 	
+	int insertUserNum() {
+		while(true) {
+			printMemberList(members);
+			System.out.print("삭제할 회원번호를 입력하세요. > ");
+			int input = nextInt();
+			if(input == 1) {
+				System.out.println("관리자계정은 삭제할 수 없습니다.");
+			} else {
+				int idx = findByNum(input);
+				
+				if(idx != -1) {
+					printMemberInfo(members.get(idx));
+					return idx;
+				}				
+				System.out.println("찾을 수 없습니다.");
+			}
+		}
+	}
+		
 	/**
 	 * 회원 객체 삭제 전, 다시 한 번 삭제 여부를 물음
 	 * @param idx
@@ -1169,12 +1271,20 @@ public class Service {
 	 * 			회원 목록
 	 */
 	void checkDeleteMem(int idx) {
-		System.out.print("정말로 삭제하시겠습니까?(삭제시 복구할 수 없습니다) 1. 예 2. 아니오 > ");
-		int check = nextInt();
-		if(check == 1) {
-			members.remove(idx);
-			save("memberList.ser", members);
-			System.out.println("삭제가 완료되었습니다.");
+		while(true) {
+			System.out.print("정말로 삭제하시겠습니까?(삭제시 복구할 수 없습니다) 1. 예 2. 아니오 > ");
+			int input = nextInt();
+			switch(input) {
+			case 1:
+				members.remove(idx);
+				save("memberList.ser", members);
+				System.out.println("삭제가 완료되었습니다.");
+				return;
+			case 2:
+				return;
+			default:
+				System.out.println("다시 입력하세요.");
+			}
 		}
 	}
 	
@@ -1182,21 +1292,24 @@ public class Service {
 	 * @author 소연
 	 */
 	public void manageStock() {
-		boolean run = true;
 		int[] arr = {0, 24, 36, 50, 67, 97};
 		
-		try {
-			while(run) {
+		while(true) {
+			try {
 				printManageStockMenu();
 				int input = nextInt();
-				
-				
-				if(input == 6) return;
-				purchase += stockOrder(arr[input-1], arr[input]);
-				save("transaction.ser", sales, purchase);				
+			
+				if(input > 0 && input < 6) {
+					Food seletedItem = selectItem(arr[input-1], arr[input]);
+					insertOrderInfo(seletedItem);
+				} else if(input == 6) {
+					return;
+				} else {
+					System.out.println("다시 입력하세요.");
+				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");
 			}
-		} catch(NumberFormatException e) {
-			System.out.println("숫자로 입력하세요.");
 		}
 	}
 	
@@ -1212,38 +1325,23 @@ public class Service {
 		System.out.print("메뉴를 선택하세요. > ");
 	}
 	
-	int stockOrder(int start, int end) {
-		int purchase = 0;
-		boolean run = true;
-		
-		while(run) {
-			int idx = 0;
-			
-			printFoodList(start, end, menuList);
-			System.out.println("추가 주문할 물품의 품번을 입력하세요. > ");
-			int itemNum = nextInt();
-			
-			idx = findByItemNum(start, end, itemNum, menuList);
-			
-			if(idx != -1) {
-				printFoodInfo(idx, menuList);
-				System.out.println("찾는 물품이 맞습니까? 1. 예 2. 아니오 3. 취소 > ");
-				int check = nextInt();
+	Food selectItem(int start, int end) {
+		while(true) {
+			try {
+				printFoodList(start, end, menuList);
+				System.out.print("추가 주문할 물품의 품번을 입력하세요. > ");
+				int num = nextInt();
+				Food food = findItemByNum(start, end, num);
 				
-				switch(check) {
-				case 1:
-					purchase = insertOrderInfo(idx, menuList);
-					return purchase;
-				case 2:
-					break;
-				case 3:
-					return purchase;
-				default:
-					System.out.println("다시 입력하세요.");
+				if(food != null) {
+					return food;
+				} else {
+					System.out.println("찾을 수 없습니다.");
 				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");
 			}
 		}
-		return purchase;
 	}
 	
 	Food findItemByNum(int start, int end, int itemNum) {
@@ -1253,21 +1351,54 @@ public class Service {
 		return null;
 	}
 	
+	void insertOrderInfo(Food food) {
+		while(true) {
+			try {
+				System.out.print("주문할 물품의 갯수를 입력하세요. > ");
+				int num = nextInt();
+				
+				if(num >= 0) {
+					purchase += addStock(food, num);
+					save("transaction.ser", sales, purchase);
+					addOrderLog(food, num);
+					printOrderLog(orderLog);
+					return;
+				} else {
+					System.out.println("0이상의 정수로 입력하세요.");
+				}
+			} catch(NumberFormatException e) {
+				System.out.println("숫자로 입력하세요.");
+			}
+		}
+	}
+	
+	int addStock(Food food, int num) {
+		System.out.println(food.getStock());
+		food.setStock(food.getStock() + num);
+		System.out.println(food.getStock());
+		save("menuList.ser", menuList);
+		int purchase = food.getPurchasePrice() * num;
+		
+		return purchase;
+	}
+	
+	void addOrderLog(Food food, int num) {
+		Date date = new Date(System.currentTimeMillis());
+		Log log = new Log(food, num, date);
+		orderLog.add(log);
+		save("orderLog.ser", orderLog);
+	}
+	
 	
 	/**
 	 * @author 찬희
 	 */
 	public void manageSales() {
-		// 임시
-		System.out.print("매출 : ");
-		printNumPerThou(sales);
-		System.out.println();
-		System.out.print("매입 : ");
-		printNumPerThou(purchase);
-		System.out.println();
-		System.out.print("영업이익 : ");
-		printNumPerThou(getTotal());
-		System.out.println();
+		printSalesLog(salesLog);
+		printOrderLog(orderLog);
+		System.out.println("매출 : " + printNumPerThou(sales));
+		System.out.println("매입 : " + printNumPerThou(purchase));
+		System.out.println("영업이익 : " + printNumPerThou(getTotal()));
 	}
 
 	public ArrayList<Account> getMembers() {

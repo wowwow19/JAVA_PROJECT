@@ -1,4 +1,4 @@
-package miniProject.vo;
+package project01.vo;
 
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
-package miniProject.vo;
+package project01.vo;
 
-import static miniProject.utils.CommonUtils.*;
+import static project01.utils.CommonUtils.*;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -19,6 +19,7 @@ public class Account implements Serializable {
 	private String pw;				// 비밀번호
 	private String phone;			// 전화번호
 	private int remainTime;			// 남은시간
+	private int seatNum;			// 좌석번호
 	private boolean status;			// 이용상태
 	private boolean member;			// 회원/비회원 여부
 	
@@ -37,29 +38,44 @@ public class Account implements Serializable {
 		save("memNum.ser", memNum);
 	}
 	
-	// 기본 생성자
+	/**
+	 * 로그인 및 임시 객체 생성시의 회원가입횟수가 늘어나지 않도록하는 기본 생성자
+	 */
 	public Account() {
-		this.num = memNum;
-		this.member = true;
+		memNum--;
 	}
 	
-	// 비회원 가입시 생성자
+	/**
+	 * 비회원 가입시의 생성자
+	 * @param phone
+	 * 			입력받은 전화번호 문자열
+	 */
 	public Account(String phone) {
 		this.num = memNum;
 		this.id = "guest";
 		this.pw = "0000";
 		this.phone = phone;
+		this.seatNum = -1;
 		this.remainTime = 0;
 		this.status = false;
 		this.member = false;
 	}
 	
-	// 회원 가입시 생성자
+	/**
+	 * 회원 가입시의 생성자
+	 * @param id
+	 * 			계정 아이디
+	 * @param pw
+	 * 			계정 비밀번호
+	 * @param phone
+	 * 			전화번호
+	 */
 	public Account(String id, String pw, String phone) {
 		this.num = memNum;
 		this.id = id;
 		this.pw = pw;
 		this.phone = phone;
+		this.seatNum = -1;
 		this.remainTime = 0;
 		this.status = false;
 		this.member = true;
@@ -127,6 +143,14 @@ public class Account implements Serializable {
 
 	public void setMember(boolean member) {
 		this.member = member;
+	}
+	
+	public int getSeatNum() {
+		return seatNum;
+	}
+
+	public void setSeatNum(int seatNum) {
+		this.seatNum = seatNum;
 	}
 
 	@Override

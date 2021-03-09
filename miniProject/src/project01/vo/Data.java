@@ -1,10 +1,7 @@
-package miniProject.vo;
+package project01.vo;
 
-import static miniProject.utils.CommonUtils.*;
+import static project01.utils.CommonUtils.*;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Data {
@@ -15,18 +12,18 @@ public class Data {
 		ArrayList<Account> members = new ArrayList<Account>();
 		ArrayList<Food> menuList = new ArrayList<Food>();
 		ArrayList<Fee> feeList = new ArrayList<Fee>();
+		ArrayList<Log> salesLog = new ArrayList<Log>();			// 판매기록
+		ArrayList<Log> orderLog = new ArrayList<Log>();			// 구매(발주)기록
 		int sales = 0;
 		int purchase = 0;
 		
 		// 기본 계정
-//		members.add(new Account("admin", "admin", "0000"));		// 관리자계정
-//		members.add(new Account("tmp_user", "1234", "0000")); 	// 임시계정
-//		members.add(new Account("bobo", "1230", "0000"));		// 일반회원 1
-//		members.add(new Account("cks", "741", "0000"));			// 일반회원 2
-//		members.add(new Account("soyo123", "0147", "0000"));	// 일반회원 3
-//		members.add(new Account("minu", "0908", "0000"));	 	// 일반회원 4
-//		save("memberList.ser", members);
-//		save("memNum.ser", 6);
+		members.add(new Account("admin", "admin", ""));					// 관리자계정
+		members.add(new Account("bobo1", "bobo1", "01011112222"));		// 일반회원 1
+		members.add(new Account("cks12", "cks12", "01022223333"));		// 일반회원 2
+		members.add(new Account("soyo123", "soyo123", "01025253434"));	// 일반회원 3
+		members.add(new Account("minu98", "minu98", "01099998888"));	// 일반회원 4
+		save("memberList.ser", members);
 		
 		// 식사 메뉴(상품번호 1~24)
 		menuList.add(new Food("식사", 1, "기본라면", 3500));
@@ -157,5 +154,11 @@ public class Data {
 		
 		// 매출매입장부
 		save("transaction.ser", sales, purchase);
+		
+		// 판매내역
+		save("salesLog.ser", salesLog);
+		
+		// 구매내역
+		save("orderLog.ser", orderLog);
 	}
 }

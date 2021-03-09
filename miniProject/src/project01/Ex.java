@@ -1,16 +1,15 @@
-package miniProject;
+package project01;
 
-import static miniProject.utils.CommonUtils.*;
+import static project01.utils.CommonUtils.*;
 
-import miniProject.service.Service;
+import project01.service.Service;
 
 public class Ex {
 	public static void main(String[] args) {
 		
 		Service s = new Service();
-		boolean run = true;
 		
-		while (run) {
+		while (true) {
 			try {
 				printLogo();
 				printInitialMenu();

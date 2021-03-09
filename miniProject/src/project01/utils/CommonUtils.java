@@ -1,4 +1,4 @@
-package miniProject.utils;
+package project01.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -8,12 +8,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import miniProject.vo.Account;
-import miniProject.vo.Food;
-import miniProject.vo.Merchandise;
+import project01.vo.Account;
+import project01.vo.Fee;
+import project01.vo.Food;
+import project01.vo.Log;
 
 public class CommonUtils {
 	
@@ -52,18 +54,6 @@ public class CommonUtils {
 		System.out.print("메뉴를 선택하세요. > ");
 	}
 		
-	public static void printMemberMenu() {
-		System.out.println("===================================== 홈 > 로그인 > 회원메뉴 ========================================");
-		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
-		System.out.println("                │   1. 좌석선택    │  │   2. 요금결제    │  │   3. 음식구매    │               ");
-		System.out.println("                └─────────┘  └─────────┘  └─────────┘               ");
-		System.out.println("                ┌─────────┐  ┌─────────┐  ┌─────────┐               ");
-		System.out.println("                │ 4. 이용상태관리  │  │   5. 정보수정    │  │   6. 로그아웃    │               ");
-		System.out.println("                └─────────┘  └─────────┘  └─────────┘               ");
-		System.out.println("=====================================================================================================");
-		System.out.print("메뉴를 선택하세요. > ");
-	}
-
 	/**
 	 * 파일을 읽어올 ObjectInputStream을 생성
 	 * @param fileName
@@ -124,23 +114,7 @@ public class CommonUtils {
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * 회원 목록에서 특정 id값을 가진 객체의 인덱스 값을 반환
-	 * @param id
-	 * 			배열의 객체에서 찾을 id값
-	 * @param list
-	 * 			id가 있는지 검색할 Account 배열
-	 * @return
-	 * 			찾는 id값을 가진 객체의 인덱스(존재하면 해당 인덱스 값, 존재하지 않으면 -1를 반환)
-	 */
-	public static int findById(String id, ArrayList<Account> list) {
-		for(int i = 0; i < list.size(); i++) {
-			if(id.equals(list.get(i).getId())) return i;
-		}
-		return -1;
-	}
-			
+				
 	/**
 	 * 글자 하나당 2byte로 계산할지 1byte로 계산할지를 알려주는 메서드, 파라미터가 한글일 경우 2byte를 그렇지 않을 경우는
 	 * 1byte로 반환한다.
@@ -322,6 +296,20 @@ public class CommonUtils {
 		System.out.println(format(str, len));
 		System.out.println("=====================================================================================================");
 	}
+		
+	public static void printFeeInfo(Fee fee) {
+        String[] menus = {"품번", "상품명", "판매가격"};
+        String[] str = new String[3];
+        int[] len = {10, 20, 10};
+		
+        System.out.println("==========================================< 요금목록 >===============================================");
+        System.out.println(format(menus, len));
+        str[0] = Integer.toString(fee.getItemNum());
+        str[1] = fee.getName();
+        str[2] = Integer.toString(fee.getPrice());
+        System.out.println(format(str, len));
+        System.out.println("=====================================================================================================");
+	}
 	
 	public static void printFoodList(int start, int end, ArrayList<Food> list) {
 		String[] menus = {"종류", "품번", "상품명", "판매가격", "구입가격", "재고"};
@@ -361,24 +349,67 @@ public class CommonUtils {
 		System.out.println("=====================================================================================================");
 	}
 	
-	public static void printFeeList(ArrayList<Fee> list) {
-		String[] menus = {"종류", "품번", "상품명", "판매가격", "구입가격", "재고"};
+	public static void printOrderLog(ArrayList<Log> list) {
+		String[] menus = {"종류", "상품명", "개수", "구입가격", "총액", "구입날짜"};
 		String[] str = new String[6];
-		int[] len = {15, 10, 20, 10, 10, 10};
+		int[] len = {10, 25, 10, 10, 20, 30};
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		int total = 0;
 
-		System.out.println("==========================================< 재고현황 >===============================================");
+		System.out.println("==========================================< 구매내역 >===============================================");
 		System.out.println(format(menus, len));
 		for(int i = 0; i < list.size(); i++) {
-			str[0] = list.get(i).getKind();
-			str[1] = Integer.toString(list.get(i).getItemNum());
-			str[2] = list.get(i).getName();
-			str[3] = Integer.toString(list.get(i).getPrice());
-			str[4] = Integer.toString(list.get(i).getPurchasePrice());
-			str[5] = Integer.toString(list.get(i).getStock());
+			Food food = (Food) list.get(i).getItem();
+			str[0] = food.getKind();
+			str[1] = food.getName();
+			str[2] = Integer.toString(list.get(i).getItemNum());
+			str[3] = printNumPerThou(food.getPurchasePrice());
+			str[4] = printNumPerThou(list.get(i).getTotal());
+			str[5] = sdf.format(list.get(i).getDate());
+			total += list.get(i).getTotal();
 			System.out.println(format(str, len));
 		}
+		System.out.println("총계 : " + printNumPerThou(total) + "원");
 		System.out.println("=====================================================================================================");
 	}
+	
+	public static void printSalesLog(ArrayList<Log> list) {
+		String[] menus = {"종류", "상품명", "구매자", "개수", "판매가격", "총액", "판매날짜"};
+		String[] str = new String[7];
+		int[] len = {10, 20, 15, 10, 10, 15, 25};
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		int total = 0;
+
+		System.out.println("==========================================< 판매내역 >===============================================");
+		System.out.println(format(menus, len));
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).getItem() instanceof Food) {
+				Food food = (Food) list.get(i).getItem();
+				str[0] = food.getKind();
+				str[1] = food.getName();
+				str[2] = list.get(i).getUser().getId();
+				str[3] = Integer.toString(list.get(i).getItemNum());
+				str[4] = printNumPerThou(food.getPrice());
+				str[5] = printNumPerThou(list.get(i).getTotal());
+				str[6] = sdf.format(list.get(i).getDate());
+				total += list.get(i).getTotal();
+			} else if(list.get(i).getItem() instanceof Fee) {
+				Fee fee = (Fee) list.get(i).getItem();
+				str[0] = "요금결제";
+				str[1] = fee.getName();
+				str[2] = list.get(i).getUser().getId();
+				str[3] = "1";
+				str[4] = printNumPerThou(fee.getPrice());
+				str[5] = printNumPerThou(list.get(i).getTotal());
+				str[6] = sdf.format(list.get(i).getDate());
+				total += list.get(i).getTotal();
+			}
+			System.out.println(format(str, len));
+		}
+		System.out.println("총계 : " + printNumPerThou(total) + "원");
+		System.out.println("=====================================================================================================");
+	}
+	
 	
 	/**
 	 * 패스워드 문자열을 입력받아 첫글자와 마지막 글자를 제외하고 *(별표)로 출력
@@ -394,48 +425,14 @@ public class CommonUtils {
 		pwTmp += pw.charAt(pw.length()-1);
 		return pwTmp;
 	}
-	
-	
-	/**
-	 * 품번을 입력받아 음식리스트에서 해당 품번의 음식객체의 인덱스를 반환
-	 * @param itemNum
-	 * @param list
-	 * @return
-	 */
-	public static int findByItemNum(int itemNum, ArrayList<Merchandise> list) {
-		int idx = 0;
-		for(int i = 0; i < list.size(); i++) {
-			if(list.get(i).getItemNum() == itemNum) idx = i;
-			return idx;
-		}
-		return -1;
-	}
-	
+		
 	public static int findByItemNum(int start, int end, int itemNum, ArrayList<Food> list) {
 		for(int i = start; i < end; i++) {
 			if(list.get(i).getItemNum() == itemNum) return i;
 		}
 		return -1;
 	}
-	
-	/**
-	 * 종류를 입력받아 전체 음식리스트에서 해당 종류의 음식리스트를 반환
-	 * @param kind
-	 * 			찾을 음식 종류
-	 * @param list
-	 * 			음식 객체가 담긴 음식 리스트
-	 * @return
-	 * 			해당 종류의 음식객체가 담긴 음식리스트
-	 */
-	public static ArrayList<Food> findByKind(String kind, ArrayList<Food> list) {
-		ArrayList<Food> foods = null;
-		for(int i = 0; i < list.size(); i++) {
-			if(kind.equals(list.get(i).getKind())) foods.add(list.get(i));
-			return foods;
-		}
-		return null;
-	}
-	
+		
 	/**
 	 * 회원가입 취소시 자동증가되는 회원가입 횟수를 감소시켜 저장
 	 */
@@ -443,66 +440,14 @@ public class CommonUtils {
 		Account.setMemNum(Account.getMemNum()-1);
 		save("memNum.ser", Account.getMemNum());
 	}
-	
-	/**
-	 * 로그아웃 전 이용상태가 true경우 false로 바꾸고 저장 후 종료
-	 * @param user
-	 * 			현재 로그인된 계정
-	 * @param list
-	 * 			회원목록
-	 */
-	public static void logOut(Account user, ArrayList<Account> list) {
-		if(user.isStatus()) {
-			user.setStatus(false);			
-		}
-		save("memberList.ser", list);
-	}
-	
+		
 	/**
 	 * 숫자를 입력받아 천단위로 ','를 삽입하여 출력
 	 * @param num
 	 * 			입력받는 정수
 	 */
-//	public static void printNumPerThou(long num) {
-//		String str = "";
-//		
-//		if(num < 0) {
-//			str += "-";
-//			num = -num;
-//		}
-//		
-//		long rest = num % 1000;
-//		long tryNum = (Long.toString(num).length()-1) / 3;
-//		
-//		
-//		if(tryNum > 0) {
-//			for(long i = tryNum; i > 0; i--) {
-//				int tmp = (int) (Math.pow(1000, i));
-//				
-//				if(tmp != 0) {
-//					str += num / tmp + ",";					
-//				}
-//				num %= (int) (Math.pow(1000, i));
-//			}			
-//		}
-//		
-//		if(rest == 0) {
-//			for(int i = 0; i < tryNum * 3; i++) {
-//				str += "0";
-//			}
-//		} else {
-//			str += Long.toString(rest);			
-//		}
-//		System.out.print(str);
-//	}
-	
-	public static void printNumPerThou(long num) {
+	public static String printNumPerThou(long num) {
 		String str = String.format("%,d", num);
-		System.out.println(str);
-	}
-	
-	
-	public static void main(String[] args) {
-		printNumPerThou(1232342342423445L);
+		return str;
 	}
 }
